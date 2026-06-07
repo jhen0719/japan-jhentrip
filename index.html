@@ -284,16 +284,14 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-    // ── 請將下面換成你的 Firebase 設定 ──
     const firebaseConfig = {
-      apiKey: "AIzaSyB7Apw0UWc6T_vuU_wR6Eym50DdLM0VUC0",
-      authDomain: "jhentrip.firebaseapp.com",
-      projectId: "jhentrip",
-      storageBucket: "jhentrip.firebasestorage.app",
+      apiKey:            "AIzaSyB7Apw0UWc6T_vuU_wR6Eym50DdLM0VUC0",
+      authDomain:        "jhentrip.firebaseapp.com",
+      projectId:         "jhentrip",
+      storageBucket:     "jhentrip.firebasestorage.app",
       messagingSenderId: "8716132933",
-      appId: "1:8716132933:web:465a415ef79fab4fe2792c"
+      appId:             "1:8716132933:web:465a415ef79fab4fe2792c"
     };
-    // ──────────────────────────────────
 
     const app  = initializeApp(firebaseConfig);
     const db   = getFirestore(app);
@@ -325,10 +323,11 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
         const snap = await getDoc(REF);
         if (snap.exists()) {
           const d = snap.data();
-          if (Array.isArray(d.days)      && d.days.length)      window.days      = d.days;
-          if (Array.isArray(d.ledger))                           window.ledger    = d.ledger;
-          if (Array.isArray(d.shopItems))                        window.shopItems = d.shopItems;
-          showSaveToast('資料已從雲端載入 ✓');
+          // Use the in-place setter so the JS closures see the updated data
+          if (window.setFirebaseData) {
+            window.setFirebaseData(d);
+            showSaveToast('資料已從雲端載入 ✓');
+          }
         } else {
           // First time — push local default data up
           window.fbSave();
@@ -1151,6 +1150,20 @@ window.shopItems = shopItems;
 window.renderItinerary = renderItinerary;
 window.renderLedger    = renderLedger;
 window.renderShop      = renderShop;
+
+// ── in-place setter: mutate the SAME arrays so all closures see the new data ──
+window.setFirebaseData = function(d) {
+  if (Array.isArray(d.days) && d.days.length) {
+    days.splice(0, days.length, ...d.days);
+  }
+  if (Array.isArray(d.ledger)) {
+    ledger.splice(0, ledger.length, ...d.ledger);
+  }
+  if (Array.isArray(d.shopItems)) {
+    shopItems.splice(0, shopItems.length, ...d.shopItems);
+  }
+  if (d.savedAt) console.log('Loaded Firebase data saved at', d.savedAt);
+};
 
 // ── toast helper ──
 function showSaveToast(msg, isError) {
