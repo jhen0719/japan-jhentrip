@@ -39,6 +39,750 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
 .dtab{flex:1;padding:7px 4px;border-radius:20px;border:0.5px solid var(--border);font-size:12px;cursor:pointer;color:var(--ink-s);background:var(--bg);font-family:'Noto Sans JP',sans-serif;transition:all 0.15s;line-height:1.4;text-align:center}
 .dtab.active{background:var(--ink);color:var(--bg);border-color:transparent}
 
+.day-panel{display:none;padding:16px 16px 90px}
+.day-panel.show{display:block}
+
+.day-header{display:flex;align-items:baseline;gap:10px;padding:4px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:16px}
+.day-header .dnum{font-family:'Noto Serif JP',serif;font-size:30px;font-weight:300;color:var(--sakura);line-height:1}
+.day-header .dinfo h2{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;letter-spacing:0.04em}
+.day-header .dinfo p{font-size:11px;color:var(--ink-t);margin-top:3px}
+
+.step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.step-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:32px}
+.step-num{width:26px;height:26px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--ink-s);flex-shrink:0}
+.step-line{width:1px;background:var(--border);flex:1;min-height:16px;margin-top:3px}
+
+.step-card{flex:1;background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:11px 13px;min-width:0}
+.step-card.transport{border-left:2.5px solid #b8cde0;border-radius:0 12px 12px 0}
+.step-card.food{border-left:2.5px solid #e4b0ba;border-radius:0 12px 12px 0}
+.step-card.stay{border-left:2.5px solid #a8c5a0;border-radius:0 12px 12px 0}
+.step-card.shop{border-left:2.5px solid #d4c08a;border-radius:0 12px 12px 0}
+
+.sc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px}
+.sc-title{font-size:13px;font-weight:500;line-height:1.4;color:var(--ink)}
+.sc-time{font-size:11px;color:var(--ink-t);white-space:nowrap;padding-top:1px;flex-shrink:0}
+.sc-sub{font-size:11px;color:var(--ink-s);line-height:1.7}
+
+.tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.tag{font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.tag-transport{background:var(--sora-bg);color:var(--sora)}
+.tag-food{background:var(--sakura-bg);color:var(--sakura)}
+.tag-shop{background:var(--amber-bg);color:var(--amber)}
+.tag-nature{background:var(--matcha-bg);color:var(--matcha)}
+
+.link-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--sora);text-decoration:none;padding:4px 9px;border:0.5px solid #b5d4f4;border-radius:6px;margin-top:7px;cursor:pointer;background:var(--sora-bg)}
+.link-btn i{font-size:12px}
+.link-btn:hover{background:#d5e8f6}
+
+.sub-list{margin-top:7px;padding:8px 10px;background:var(--bg-s);border-radius:8px}
+.sub-list .floor{font-size:11px;font-weight:500;color:var(--amber);margin-top:6px;margin-bottom:2px}
+.sub-list .floor:first-child{margin-top:0}
+.shop-item{font-size:11px;color:var(--ink-s);padding:2px 0;display:flex;align-items:center;gap:5px}
+.shop-item::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--ink-t);flex-shrink:0}
+
+.flight-card{background:var(--bg-s);border-radius:10px;padding:10px 12px;margin-top:7px}
+.flight-row{display:flex;align-items:center;gap:8px}
+.flight-time{font-size:17px;font-weight:500;font-family:'Noto Serif JP',serif;color:var(--ink)}
+.flight-arrow{flex:1;display:flex;align-items:center;gap:4px;color:var(--ink-t);font-size:14px;color:var(--sora)}
+.flight-arrow::before,.flight-arrow::after{content:'';height:0.5px;background:var(--border);flex:1}
+.flight-info{font-size:11px;color:var(--ink-s);margin-top:5px}
+
+.divider{height:0.5px;background:var(--border);margin:10px 0}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:var(--bg-s);font-size:10px;color:var(--ink-s)}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-dot{width:8px;height:16px;border-radius:2px;flex-shrink:0}
+
+#splash{
+  position:fixed;inset:0;
+  background:var(--washi);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:999;
+  opacity:1;
+  transition:opacity 0.9s ease;
+}
+#splash.fade-out{opacity:0;pointer-events:none}
+.splash-eyebrow{
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:13px;
+  font-weight:400;
+  letter-spacing:0.28em;
+  color:var(--ink-t);
+  opacity:0;
+  transform:translateY(8px);
+  animation:splashIn 0.8s ease 0.2s forwards;
+  margin-bottom:10px;
+}
+.splash-logo{
+  font-family:'Noto Serif JP',serif;
+  font-size:54px;
+  font-weight:300;
+  letter-spacing:0.14em;
+  color:var(--ink);
+  opacity:0;
+  transform:translateY(14px);
+  animation:splashIn 0.9s ease 0.5s forwards;
+  line-height:1;
+}
+.splash-sub{
+  font-family:'Noto Serif JP',serif;
+  font-size:14px;
+  font-weight:300;
+  letter-spacing:0.18em;
+  color:var(--sakura);
+  margin-top:12px;
+  opacity:0;
+  animation:splashIn 0.9s ease 0.9s forwards;
+}
+.splash-bar{
+  width:32px;height:1px;
+  background:var(--sakura);
+  margin-top:22px;
+  opacity:0;
+  transform:scaleX(0);
+  animation:barIn 0.8s ease 1.2s forwards;
+  transform-origin:left;
+}
+@keyframes splashIn{
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes barIn{
+  to{opacity:1;transform:scaleX(1)}
+}
+.app{opacity:0;transition:opacity 0.9s ease}
+.app.visible{opacity:1}
+
+.bottom-nav{position:sticky;bottom:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-top:0.5px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;cursor:pointer;color:var(--ink-t);font-size:10px;letter-spacing:0.04em;gap:3px;background:none;border:none;font-family:'Noto Sans JP',sans-serif;transition:color 0.15s}
+.bnav-btn.active{color:var(--sakura)}
+.bnav-btn .ms{font-size:22px}
+
+.tab-page{display:none;padding:0 0 90px}
+.tab-page.show{display:block}
+
+.page-header{padding:18px 18px 14px;border-bottom:0.5px solid var(--border)}
+.page-header h2{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:400;letter-spacing:0.04em}
+.page-header p{font-size:11px;color:var(--ink-t);margin-top:3px}
+
+/* ---- EXCHANGE ---- */
+.exch-wrap{padding:16px}
+.rate-card{background:var(--bg-s);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.rate-label{font-size:11px;color:var(--ink-t)}
+.rate-value{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:400;color:var(--ink)}
+.rate-note{font-size:10px;color:var(--ink-t);margin-top:2px;text-align:right}
+.exch-input-wrap{background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.exch-label{font-size:11px;color:var(--ink-t);margin-bottom:6px}
+.exch-row{display:flex;align-items:center;gap:8px}
+.exch-currency{font-size:13px;font-weight:500;color:var(--ink-s);min-width:28px}
+.exch-field{flex:1;border:none;outline:none;font-size:22px;font-family:'Noto Serif JP',serif;font-weight:300;color:var(--ink);background:transparent;min-width:0}
+.exch-clear{background:none;border:none;cursor:pointer;color:var(--ink-t);font-size:16px;padding:4px}
+.exch-result{background:var(--sakura-bg);border-radius:12px;padding:14px 16px;margin-bottom:20px}
+.exch-result .r-label{font-size:11px;color:var(--sakura);margin-bottom:4px}
+.exch-result .r-value{font-family:'Noto Serif JP',serif;font-size:28px;font-weight:300;color:var(--sakura)}
+.exch-result .r-note{font-size:11px;color:var(--sakura);opacity:0.7;margin-top:2px}
+
+.ledger-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ledger-head h3{font-family:'Noto Serif JP',serif;font-size:14px;font-weight:400}
+.add-btn{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--sora);background:var(--sora-bg);border:0.5px solid #b5d4f4;border-radius:8px;padding:5px 10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
+.ledger-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.ledger-item:last-child{border-bottom:none}
+.li-info{flex:1;min-width:0}
+.li-name{font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-jpy{font-size:11px;color:var(--ink-t);margin-top:1px}
+.li-twd{font-size:13px;font-weight:500;color:var(--sakura);white-space:nowrap}
+.li-del{background:none;border:none;cursor:pointer;color:var(--ink-t);font-size:14px;padding:4px}
+.ledger-total{background:var(--bg-s);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.ledger-total .t-label{font-size:12px;color:var(--ink-s)}
+.ledger-total .t-jpy{font-size:11px;color:var(--ink-t)}
+.ledger-total .t-twd{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:400;color:var(--sakura)}
+
+/* ---- SHOPPING LIST ---- */
+.shop-wrap{padding:16px}
+.sl-add-bar{display:flex;gap:8px;margin-bottom:16px}
+.sl-add-bar input{flex:1;border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;background:var(--bg);color:var(--ink)}
+.sl-add-bar input:focus{border-color:#b5d4f4}
+.sl-add-btn{background:var(--ink);color:var(--bg);border:none;border-radius:8px;width:38px;cursor:pointer;font-size:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.sl-item{background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;transition:opacity 0.2s}
+.sl-item.checked{opacity:0.45}
+.sl-top{display:flex;align-items:flex-start;gap:10px}
+.sl-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all 0.15s;background:var(--bg)}
+.sl-check.on{background:var(--matcha);border-color:var(--matcha)}
+.sl-check.on::after{content:'✓';color:white;font-size:11px;font-weight:500}
+.sl-name{flex:1;font-size:13px;color:var(--ink);line-height:1.5;word-break:break-all}
+.sl-item.checked .sl-name{text-decoration:line-through;color:var(--ink-t)}
+.sl-actions{display:flex;gap:6px;margin-top:8px;margin-left:30px}
+.sl-price-wrap{display:flex;align-items:center;gap:6px;flex:1}
+.sl-price-input{border:0.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;width:90px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);outline:none}
+.sl-price-label{font-size:11px;color:var(--ink-t)}
+.sl-price-twd{font-size:12px;color:var(--sakura);font-weight:500}
+.sl-img-btn{font-size:11px;color:var(--sora);background:var(--sora-bg);border:0.5px solid #b5d4f4;border-radius:6px;padding:4px 8px;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap}
+.sl-img-preview{margin-top:8px;margin-left:30px;display:flex;gap:6px;flex-wrap:wrap}
+.sl-img-preview img{width:60px;height:60px;object-fit:cover;border-radius:6px;border:0.5px solid var(--border);cursor:pointer}
+.sl-del-btn{background:none;border:none;cursor:pointer;color:var(--ink-t);font-size:16px;padding:2px;margin-left:auto}
+.sl-section-label{font-size:11px;color:var(--ink-t);letter-spacing:0.08em;margin:14px 0 8px;padding-bottom:6px;border-bottom:0.5px solid var(--border)}
+.compare-row{display:flex;align-items:center;gap:6px;margin-top:6px;margin-left:30px}
+.compare-input{border:0.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;width:80px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);outline:none}
+.compare-label{font-size:11px;color:var(--ink-t)}
+.compare-badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.compare-better{background:var(--matcha-bg);color:var(--matcha)}
+.compare-worse{background:var(--sakura-bg);color:var(--sakura)}
+
+</style>
+</head>
+<body>
+<div id="splash">
+  <div class="splash-eyebrow">我要去獨旅</div>
+  <div class="splash-logo">TOKYO</div>
+  <div class="splash-sub">I'm in tokyo</div>
+  <div class="splash-bar"></div>
+</div>
+
+<div class="app" id="mainApp">
+
+<div class="top-bar">
+  <div class="logo">獨旅 in <span>TOKYO</span></div>
+  <div class="trip-meta">日本 2026<br>06/18 – 06/23</div>
+</div>
+
+<div id="page-itinerary" class="tab-page show">
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#b8cde0"></div>交通</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e4b0ba"></div>餐廳</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a8c5a0"></div>住宿</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d4c08a"></div>購物景點</div>
+</div>
+
+<div class="day-tabs">
+  <button class="dtab active" onclick="switchDay(0)">Day 1<br><span style="font-size:10px;opacity:.7">06/18</span></button>
+  <button class="dtab" onclick="switchDay(1)">Day 2<br><span style="font-size:10px;opacity:.7">06/20</span></button>
+  <button class="dtab" onclick="switchDay(2)">Day 3<br><span style="font-size:10px;opacity:.7">06/21</span></button>
+  <button class="dtab" onclick="switchDay(3)">Day 4<br><span style="font-size:10px;opacity:.7">06/22</span></button>
+  <button class="dtab" onclick="switchDay(4)">Day 5<br><span style="font-size:10px;opacity:.7">06/23</span></button>
+</div>
+
+<!-- DAY 1 -->
+<div id="d0" class="day-panel show">
+  <div class="day-header">
+    <div class="dnum">01</div>
+    <div class="dinfo"><h2>出發 · 東京抵達</h2><p>桃園 → 成田 → 新宿 → 大塚</p></div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❶</div><div class="step-line"></div></div>
+    <div class="step-card transport">
+      <div class="sc-head"><span class="sc-title">桃園國際機場</span><span class="sc-time">23:00</span></div>
+      <div class="sc-sub">06/18 出發</div>
+      <div class="flight-card">
+        <div class="flight-row">
+          <div><div class="flight-time">02:00</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">桃園</div></div>
+          <div class="flight-arrow"><span class="ms">flight</span></div>
+          <div style="text-align:right"><div class="flight-time">06:30</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">成田</div></div>
+        </div>
+        <div class="flight-info">樂桃航空 · MM620 · 約4.5小時</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❷</div><div class="step-line"></div></div>
+    <div class="step-card transport">
+      <div class="sc-head"><span class="sc-title">成田機場 → 新宿</span><span class="sc-time">06:30</span></div>
+      <div class="sc-sub">N'EX 成田特快 · 約85分鐘</div>
+      <div class="tag-row">
+        <span class="tag tag-transport">07:37</span>
+        <span class="tag tag-transport">08:12</span>
+        <span class="tag tag-transport">08:49</span>
+      </div>
+      <a class="link-btn" href="https://drive.google.com/file/d/1Q8QgRquTQNYSTKiSi4lDa99P1dc2ZGnH/view" target="_blank">
+        <span class="ms">confirmation_number</span>取票教學
+      </a>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❸</div><div class="step-line"></div></div>
+    <div class="step-card transport">
+      <div class="sc-head"><span class="sc-title">新宿 → 大塚</span><span class="sc-time">10:00</span></div>
+      <div class="sc-sub">山手線 · 約15分鐘</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❹</div><div class="step-line"></div></div>
+    <div class="step-card stay">
+      <div class="sc-head"><span class="sc-title">先放行李 · 住宿</span><span class="sc-time">10:30</span></div>
+      <div class="tag-row">
+        <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
+        <a class="link-btn" href="https://secure.booking.com/app_link/myreservations.zh-tw.html?stid=325542&bn=5489678961&aid=1244849" target="_blank"><span class="ms">open_in_new</span>訂單</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❺</div><div class="step-line"></div></div>
+    <div class="step-card food">
+      <div class="sc-head"><span class="sc-title">麵屋武藏 二天</span><span class="sc-time">11:00</span></div>
+      <div class="sc-sub">池袋 · 午餐</div>
+      <a class="link-btn" href="https://maps.app.goo.gl/dSg6YPqbpyRqMTAU6?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❻</div><div class="step-line"></div></div>
+    <div class="step-card shop">
+      <div class="sc-head"><span class="sc-title">池袋逛街</span><span class="sc-time">13:00</span></div>
+      <div class="sc-sub">IT TOWER TOKYO · 三麗鷗 GU UQ</div>
+      <div class="divider"></div>
+      <div style="font-size:12px;font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:8px">
+        太陽城 · 10:00–20:00
+        <a class="link-btn" style="margin-top:0" href="https://maps.app.goo.gl/LTyHDWHe8DoygZXW9?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
+      </div>
+      <div class="sub-list">
+        <div class="floor">Alpa B1F</div>
+        <div class="shop-item">吉卜力</div>
+        <div class="shop-item">3coins</div>
+        <div class="shop-item">MARVEL · Disney</div>
+        <div class="floor">Alpa 1F</div>
+        <div class="shop-item">ABC MART · 無印良品 · Loft</div>
+        <div class="floor">Alpa 2F</div>
+        <div class="shop-item">Kiddy Land · Snoopy · TOP TOY · 蠟筆小新</div>
+        <div class="floor">Alpa 3F</div>
+        <div class="shop-item">扭蛋</div>
+        <div class="floor">Annex B1/1F</div>
+        <div class="shop-item">吉伊卡哇</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❼</div></div>
+    <div class="step-card stay">
+      <div class="sc-title">回住宿</div>
+      <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
+    </div>
+  </div>
+</div>
+
+<!-- DAY 2 -->
+<div id="d1" class="day-panel">
+  <div class="day-header">
+    <div class="dnum">02</div>
+    <div class="dinfo"><h2>橫濱 · 新宿</h2><p>麵包超人博物館 · 逛街購物</p></div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❶</div><div class="step-line"></div></div>
+    <div class="step-card stay">
+      <div class="sc-title">住宿出發</div>
+      <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❷</div><div class="step-line"></div></div>
+    <div class="step-card transport">
+      <div class="sc-head"><span class="sc-title">前往橫濱</span></div>
+      <div class="sc-sub">山手線 → 池袋 · 湘南新宿線 → 橫濱<br>新高島站 3出口 · ¥715</div>
+      <div class="divider"></div>
+      <div class="sc-head"><span class="sc-title">麵包超人博物館</span></div>
+      <div class="sc-sub">10:00–18:00</div>
+      <div class="tag-row"><span class="tag tag-nature">景點</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❸</div><div class="step-line"></div></div>
+    <div class="step-card food">
+      <div class="sc-head"><span class="sc-title">午餐 · 油そば</span></div>
+      <div class="sc-sub">橫濱</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❹</div></div>
+    <div class="step-card shop">
+      <div class="sc-head"><span class="sc-title">新宿購物</span></div>
+      <div class="sub-list" style="margin-top:6px">
+        <div class="shop-item">Gacha Gacha no Mori 扭蛋</div>
+        <div class="shop-item">Kiddy Land Shinjuku</div>
+        <div class="shop-item">ビックカメラ 新宿東口（GU · UNIQLO · Big Camera）</div>
+        <div class="shop-item">無印良品</div>
+        <div class="shop-item">丸井 4F seria · 5F 駿河屋</div>
+        <div class="shop-item">Hands</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DAY 3 -->
+<div id="d2" class="day-panel">
+  <div class="day-header">
+    <div class="dnum">03</div>
+    <div class="dinfo"><h2>淺草 · 上野 · 秋葉原</h2><p>傳統文化與現代文化交匯</p></div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❶</div><div class="step-line"></div></div>
+    <div class="step-card food">
+      <div class="sc-head"><span class="sc-title">淺草</span></div>
+      <div class="sub-list" style="margin-top:6px">
+        <div class="shop-item">炸肉餅</div>
+        <div class="shop-item">花月堂</div>
+        <div class="shop-item">炸饅頭</div>
+        <div class="shop-item">三麗鷗</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❷</div><div class="step-line"></div></div>
+    <div class="step-card food">
+      <div class="sc-head"><span class="sc-title">上野</span></div>
+      <div class="sc-sub">買東西逛街</div>
+      <div class="divider"></div>
+      <div class="sc-sub">とんかつ山家 · 炸豬排</div>
+      <div class="tag-row"><span class="tag tag-food">炸豬排</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❸</div></div>
+    <div class="step-card shop">
+      <div class="sc-title">秋葉原</div>
+      <div class="sc-sub" style="margin-top:4px">電器街 · 動漫周邊</div>
+    </div>
+  </div>
+</div>
+
+<!-- DAY 4 -->
+<div id="d3" class="day-panel">
+  <div class="day-header">
+    <div class="dnum">04</div>
+    <div class="dinfo"><h2>鎌倉一日遊</h2><p>海岸線 · 古寺 · 小鎮散策</p></div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">—</div><div class="step-line"></div></div>
+    <div class="step-card transport">
+      <div class="sc-title">新宿 → 藤澤</div>
+      <a class="link-btn" href="http://xhslink.com/o/2Fu1mUkOO8D" target="_blank"><span class="ms">confirmation_number</span>購票方式</a>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">❶</div></div>
+    <div class="step-card shop">
+      <div class="sc-title" style="margin-bottom:8px">鎌倉景點</div>
+      <div class="sub-list">
+        <div class="shop-item">鎌倉高校前</div>
+        <div class="shop-item">七里之濱</div>
+        <div class="shop-item">長谷寺</div>
+        <div class="shop-item">鎌倉大佛</div>
+        <div class="shop-item">小町通</div>
+        <div class="shop-item">鶴岡八幡宮</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DAY 5 -->
+<div id="d4" class="day-panel">
+  <div class="day-header">
+    <div class="dnum">05</div>
+    <div class="dinfo"><h2>返台</h2><p>06/23 · 長榮航空</p></div>
+  </div>
+
+  <div class="step">
+    <div class="step-left"><div class="step-num">✈</div></div>
+    <div class="step-card transport">
+      <div class="sc-head"><span class="sc-title">長榮航空 BR183</span></div>
+      <div class="flight-card">
+        <div class="flight-row">
+          <div><div class="flight-time">13:25</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">成田</div></div>
+          <div class="flight-arrow"><span class="ms">flight</span></div>
+          <div style="text-align:right"><div class="flight-time">16:00</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">桃園</div></div>
+        </div>
+        <div class="flight-info">約3.5小時 · 平安抵台！</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- EXCHANGE PAGE -->
+<div id="page-exchange" class="tab-page">
+  <div class="page-header">
+    <h2>匯率換算</h2>
+    <p>日幣 ↔ 台幣 即時換算 · 消費記帳</p>
+  </div>
+  <div class="exch-wrap">
+    <div class="rate-card">
+      <div>
+        <div class="rate-label">今日匯率（參考）</div>
+        <div class="rate-value">1 JPY = <span id="rateNum">0.2130</span> TWD</div>
+      </div>
+      <div style="text-align:right">
+        <button class="add-btn" onclick="fetchRate()"><span class="ms" style="font-size:15px">refresh</span> 更新</button>
+        <div class="rate-note" id="rateTime">點擊更新取得即時匯率</div>
+      </div>
+    </div>
+    <div class="exch-input-wrap">
+      <div class="exch-label">輸入日幣金額</div>
+      <div class="exch-row">
+        <span class="exch-currency">¥</span>
+        <input class="exch-field" id="jpyInput" type="number" placeholder="0" inputmode="numeric" oninput="calcExchange()">
+        <button class="exch-clear" onclick="clearExch()"><span class="ms">close</span></button>
+      </div>
+    </div>
+    <div class="exch-result">
+      <div class="r-label">換算台幣</div>
+      <div class="r-value" id="twdResult">NT$ 0</div>
+      <div class="r-note" id="calcNote">—</div>
+    </div>
+    <div class="ledger-head">
+      <h3>消費記帳</h3>
+      <button class="add-btn" onclick="addLedger()"><span class="ms" style="font-size:15px">add</span> 加入記帳</button>
+    </div>
+    <div id="ledgerList"></div>
+    <div class="ledger-total" id="ledgerTotal" style="display:none">
+      <div>
+        <div class="t-label">合計支出</div>
+        <div class="t-jpy" id="totalJpy"></div>
+      </div>
+      <div class="t-twd" id="totalTwd"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHOPPING LIST PAGE -->
+<div id="page-shopping" class="tab-page">
+  <div class="page-header">
+    <h2>購買清單</h2>
+    <p>勾選已購 · 比價 · 加圖片</p>
+  </div>
+  <div class="shop-wrap">
+    <div class="sl-add-bar">
+      <input id="slInput" type="text" placeholder="新增商品名稱…" onkeydown="if(event.key==='Enter')addShopItem()">
+      <button class="sl-add-btn" onclick="addShopItem()"><span class="ms" style="font-size:20px;color:white">add</span></button>
+    </div>
+    <div id="slUnchecked"></div>
+    <div id="slCheckedWrap" style="display:none">
+      <div class="sl-section-label">已購買</div>
+      <div id="slChecked"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="bnav-btn active" id="bnav-0" onclick="switchTab(0)">
+    <span class="ms">map</span>行程
+  </button>
+  <button class="bnav-btn" id="bnav-1" onclick="switchTab(1)">
+    <span class="ms">currency_yen</span>換算
+  </button>
+  <button class="bnav-btn" id="bnav-2" onclick="switchTab(2)">
+    <span class="ms">checklist</span>購買清單
+  </button>
+</div>
+
+</div>
+<script>
+function switchDay(i){
+  document.querySelectorAll('.day-panel').forEach(function(p,idx){p.classList.toggle('show',idx===i)});
+  document.querySelectorAll('.dtab').forEach(function(t,idx){t.classList.toggle('active',idx===i)});
+}
+
+function switchTab(i){
+  var pages=['page-itinerary','page-exchange','page-shopping'];
+  pages.forEach(function(id,idx){
+    var el=document.getElementById(id);
+    if(el) el.classList.toggle('show',idx===i);
+  });
+  document.querySelectorAll('.bnav-btn').forEach(function(b,idx){b.classList.toggle('active',idx===i)});
+}
+
+(function(){
+  var splash=document.getElementById('splash');
+  var app=document.getElementById('mainApp');
+  setTimeout(function(){
+    splash.classList.add('fade-out');
+    app.classList.add('visible');
+    setTimeout(function(){splash.style.display='none';},950);
+  },3000);
+})();
+
+var currentRate=0.2130;
+var ledger=[];
+
+function fetchRate(){
+  document.getElementById('rateTime').textContent='更新中…';
+  fetch('https://api.exchangerate-api.com/v4/latest/JPY')
+    .then(function(r){return r.json()})
+    .then(function(d){
+      currentRate=d.rates.TWD;
+      document.getElementById('rateNum').textContent=currentRate.toFixed(4);
+      var now=new Date();
+      document.getElementById('rateTime').textContent=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')+' 更新';
+      calcExchange();
+    })
+    .catch(function(){document.getElementById('rateTime').textContent='網路錯誤，使用預設值';});
+}
+
+function calcExchange(){
+  var jpy=parseFloat(document.getElementById('jpyInput').value)||0;
+  var twd=jpy*currentRate;
+  document.getElementById('twdResult').textContent='NT$ '+Math.round(twd).toLocaleString();
+  document.getElementById('calcNote').textContent=jpy?'¥'+jpy.toLocaleString()+' × '+currentRate.toFixed(4):'—';
+}
+
+function clearExch(){
+  document.getElementById('jpyInput').value='';
+  document.getElementById('twdResult').textContent='NT$ 0';
+  document.getElementById('calcNote').textContent='—';
+}
+
+function addLedger(){
+  var jpy=parseFloat(document.getElementById('jpyInput').value);
+  if(!jpy)return;
+  var name=prompt('消費項目名稱？','');
+  if(name===null)return;
+  ledger.push({name:name||('消費 ¥'+jpy.toLocaleString()),jpy:jpy,twd:Math.round(jpy*currentRate)});
+  renderLedger();
+}
+
+function renderLedger(){
+  document.getElementById('ledgerList').innerHTML=ledger.map(function(item,i){
+    return '<div class="ledger-item">'+
+      '<div class="li-info"><div class="li-name">'+item.name+'</div><div class="li-jpy">¥'+item.jpy.toLocaleString()+'</div></div>'+
+      '<div class="li-twd">NT$ '+item.twd.toLocaleString()+'</div>'+
+      '<button class="li-del" onclick="delLedger('+i+')"><span class="ms">delete</span></button>'+
+    '</div>';
+  }).join('');
+  var totalEl=document.getElementById('ledgerTotal');
+  if(ledger.length){
+    totalEl.style.display='flex';
+    var tJ=ledger.reduce(function(s,x){return s+x.jpy},0);
+    var tT=ledger.reduce(function(s,x){return s+x.twd},0);
+    document.getElementById('totalJpy').textContent='¥'+tJ.toLocaleString();
+    document.getElementById('totalTwd').textContent='NT$ '+tT.toLocaleString();
+  } else { totalEl.style.display='none'; }
+}
+
+function delLedger(i){ledger.splice(i,1);renderLedger();}
+
+var shopItems=[];
+
+function addShopItem(){
+  var input=document.getElementById('slInput');
+  var name=input.value.trim();
+  if(!name)return;
+  shopItems.unshift({id:Date.now(),name:name,checked:false,price:'',price2:'',imgs:[]});
+  input.value='';
+  renderShop();
+}
+
+function toggleCheck(id){
+  var item=shopItems.find(function(x){return x.id===id});
+  if(item){item.checked=!item.checked;renderShop();}
+}
+
+function delShopItem(id){
+  shopItems=shopItems.filter(function(x){return x.id!==id});
+  renderShop();
+}
+
+function updatePrice(id,val,field){
+  var item=shopItems.find(function(x){return x.id===id});
+  if(item){item[field]=val;renderShopTWD(id);}
+}
+
+function renderShopTWD(id){
+  var item=shopItems.find(function(x){return x.id===id});
+  if(!item)return;
+  var p1=parseFloat(item.price)||0;
+  var p2=parseFloat(item.price2)||0;
+  var el1=document.getElementById('twd-'+id+'-1');
+  var el2=document.getElementById('twd-'+id+'-2');
+  var b1=document.getElementById('badge-'+id+'-1');
+  var b2=document.getElementById('badge-'+id+'-2');
+  if(el1) el1.textContent=p1?'NT$'+Math.round(p1*currentRate).toLocaleString():'';
+  if(el2) el2.textContent=p2?'NT$'+Math.round(p2*currentRate).toLocaleString():'';
+  if(p1&&p2&&b1&&b2){
+    if(p1<p2){b1.textContent='較便宜';b1.className='compare-badge compare-better';b2.textContent='較貴';b2.className='compare-badge compare-worse';}
+    else if(p2<p1){b2.textContent='較便宜';b2.className='compare-badge compare-better';b1.textContent='較貴';b1.className='compare-badge compare-worse';}
+    else{b1.textContent='相同';b1.className='compare-badge';b2.textContent='相同';b2.className='compare-badge';}
+    b1.style.display='';b2.style.display='';
+  } else {
+    if(b1)b1.style.display='none';
+    if(b2)b2.style.display='none';
+  }
+}
+
+function addImg(id){
+  var inp=document.createElement('input');
+  inp.type='file';inp.accept='image/*';
+  inp.onchange=function(){
+    var file=inp.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var item=shopItems.find(function(x){return x.id===id});
+      if(item){item.imgs.push(e.target.result);renderShop();}
+    };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+}
+
+function removeImg(id,idx){
+  var item=shopItems.find(function(x){return x.id===id});
+  if(item){item.imgs.splice(idx,1);renderShop();}
+}
+
+function renderShopItem(item){
+  var imgs=item.imgs.map(function(src,i){
+    return '<img src="'+src+'" onclick="removeImg('+item.id+','+i+')" title="點擊移除">';
+  }).join('');
+  return '<div class="sl-item'+(item.checked?' checked':'')+'" id="sli-'+item.id+'">'+
+    '<div class="sl-top">'+
+      '<div class="sl-check'+(item.checked?' on':'')+'" onclick="toggleCheck('+item.id+')"></div>'+
+      '<div class="sl-name">'+item.name+'</div>'+
+      '<button class="sl-del-btn" onclick="delShopItem('+item.id+')"><span class="ms">delete</span></button>'+
+    '</div>'+
+    '<div class="sl-actions">'+
+      '<div class="sl-price-wrap">'+
+        '<span class="sl-price-label">¥</span>'+
+        '<input class="sl-price-input" value="'+(item.price||'')+'" placeholder="價格1" inputmode="numeric" oninput="updatePrice('+item.id+',this.value,\"price\")">'+
+        '<span class="sl-price-twd" id="twd-'+item.id+'-1">'+(item.price?'NT$'+Math.round(parseFloat(item.price)*currentRate).toLocaleString():'')+'</span>'+
+        '<span class="compare-badge" id="badge-'+item.id+'-1" style="display:none"></span>'+
+      '</div>'+
+      '<button class="sl-img-btn" onclick="addImg('+item.id+')"><span class="ms" style="font-size:13px">add_photo_alternate</span>圖</button>'+
+    '</div>'+
+    '<div class="compare-row">'+
+      '<span class="compare-label">比價 ¥</span>'+
+      '<input class="compare-input" value="'+(item.price2||'')+'" placeholder="價格2" inputmode="numeric" oninput="updatePrice('+item.id+',this.value,\"price2\")">'+
+      '<span class="sl-price-twd" id="twd-'+item.id+'-2">'+(item.price2?'NT$'+Math.round(parseFloat(item.price2)*currentRate).toLocaleString():'')+'</span>'+
+      '<span class="compare-badge" id="badge-'+item.id+'-2" style="display:none"></span>'+
+    '</div>'+
+    (imgs?'<div class="sl-img-preview">'+imgs+'</div>':'')+
+  '</div>';
+}
+
+function renderShop(){
+  var unc=shopItems.filter(function(x){return !x.checked});
+  var chk=shopItems.filter(function(x){return x.checked});
+  document.getElementById('slUnchecked').innerHTML=unc.map(renderShopItem).join('');
+  document.getElementById('slChecked').innerHTML=chk.map(renderShopItem).join('');
+  document.getElementById('slCheckedWrap').style.display=chk.length?'block':'none';
+}
+</script>
+</body>
+</html>
+.day-tabs{display:flex;padding:10px 12px;border-bottom:0.5px solid var(--border);gap:6px}
+.dtab{flex:1;padding:7px 4px;border-radius:20px;border:0.5px solid var(--border);font-size:12px;cursor:pointer;color:var(--ink-s);background:var(--bg);font-family:'Noto Sans JP',sans-serif;transition:all 0.15s;line-height:1.4;text-align:center}
+.dtab.active{background:var(--ink);color:var(--bg);border-color:transparent}
+
 .day-panel{display:none;padding:16px 16px 60px}
 .day-panel.show{display:block}
 
