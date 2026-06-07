@@ -282,7 +282,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey:            "AIzaSyB7Apw0UWc6T_vuU_wR6Eym50DdLM0VUC0",
@@ -293,15 +293,13 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
       appId:             "1:8716132933:web:465a415ef79fab4fe2792c"
     };
 
-    const app  = initializeApp(firebaseConfig);
-    const db   = getFirestore(app);
-    const REF  = doc(db, 'tabi', 'data');   // 單一文件儲存所有資料
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+    const REF = doc(db, 'tabi', 'data');
 
-    // ── 儲存 ──
-    // ── 儲存 ──
+    // ── 儲存：供主 script 呼叫 ──
     window.fbSave = async function() {
       try {
-        // Deep-clone to strip any non-serialisable values
         const payload = JSON.parse(JSON.stringify({
           days:      window.days      || [],
           ledger:    window.ledger    || [],
@@ -309,41 +307,49 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
           savedAt:   new Date().toISOString()
         }));
         await setDoc(REF, payload);
-        showSaveToast('已同步到雲端 ☁');
+        if (window.showSaveToast) window.showSaveToast('已同步到雲端 ☁');
       } catch(e) {
         const msg = e && e.code ? e.code : (e && e.message ? e.message : String(e));
-        console.error('Firebase save error', e);
-        showSaveToast('同步失敗：' + msg, true);
+        console.error('fbSave error', e);
+        if (window.showSaveToast) window.showSaveToast('同步失敗：' + msg, true);
       }
     };
 
-    // ── 載入 ──
+    // ── 載入：Firebase module 自己輪詢等主 script 就緒 ──
     async function fbLoad() {
       try {
         const snap = await getDoc(REF);
         if (snap.exists()) {
           const d = snap.data();
-          // Use the in-place setter so the JS closures see the updated data
           if (window.setFirebaseData) {
             window.setFirebaseData(d);
-            showSaveToast('資料已從雲端載入 ✓');
+            if (window.showSaveToast) window.showSaveToast('資料已從雲端載入 ✓');
           }
         } else {
-          // First time — push local default data up
+          // 第一次使用，把本地預設資料推上去
           window.fbSave();
         }
       } catch(e) {
         const msg = e && e.code ? e.code : (e && e.message ? e.message : String(e));
-        console.warn('Firebase load error', e);
-        showSaveToast('載入失敗：' + msg, true);
+        console.warn('fbLoad error', e);
+        if (window.showSaveToast) window.showSaveToast('載入失敗：' + msg, true);
       }
+      // 重新渲染
       if (window.renderItinerary) window.renderItinerary();
       if (window.renderLedger)    window.renderLedger();
       if (window.renderShop)      window.renderShop();
     }
 
-    // wait for main app JS to be ready
-    window.addEventListener('appReady', fbLoad);
+    // ── 等主 script 的 setFirebaseData 準備好再載入 ──
+    // module 是非同步載入，不能靠事件，改用輪詢確保時序正確
+    function waitAndLoad() {
+      if (typeof window.setFirebaseData === 'function') {
+        fbLoad();
+      } else {
+        setTimeout(waitAndLoad, 50);
+      }
+    }
+    waitAndLoad();
   </script>
 </head>
 <body>
@@ -1166,7 +1172,7 @@ window.setFirebaseData = function(d) {
 };
 
 // ── toast helper ──
-function showSaveToast(msg, isError) {
+window.showSaveToast = function showSaveToast(msg, isError) {
   var t = document.getElementById('saveToast');
   if (!t) return;
   t.textContent = msg;
@@ -1219,9 +1225,8 @@ addLedger = function() { _origAddLedger(); /* fbSave called inside renderLedger 
 var _origDelLedger = delLedger;
 delLedger = function(i) { _origDelLedger(i); if(window.fbSave) window.fbSave(); };
 
-// ── initial render then signal Firebase module ──
+// ── initial render ──
 renderItinerary();
-window.dispatchEvent(new Event('appReady'));
 </script>
 
 <!-- LIGHTBOX -->
