@@ -92,10 +92,77 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
 .legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:var(--bg-s);font-size:10px;color:var(--ink-s)}
 .legend-item{display:flex;align-items:center;gap:4px}
 .legend-dot{width:8px;height:16px;border-radius:2px;flex-shrink:0}
+
+#splash{
+  position:fixed;inset:0;
+  background:var(--washi);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:999;
+  opacity:1;
+  transition:opacity 0.9s ease;
+}
+#splash.fade-out{opacity:0;pointer-events:none}
+.splash-eyebrow{
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:13px;
+  font-weight:400;
+  letter-spacing:0.28em;
+  color:var(--ink-t);
+  opacity:0;
+  transform:translateY(8px);
+  animation:splashIn 0.8s ease 0.2s forwards;
+  margin-bottom:10px;
+}
+.splash-logo{
+  font-family:'Noto Serif JP',serif;
+  font-size:54px;
+  font-weight:300;
+  letter-spacing:0.14em;
+  color:var(--ink);
+  opacity:0;
+  transform:translateY(14px);
+  animation:splashIn 0.9s ease 0.5s forwards;
+  line-height:1;
+}
+.splash-sub{
+  font-family:'Noto Serif JP',serif;
+  font-size:14px;
+  font-weight:300;
+  letter-spacing:0.18em;
+  color:var(--sakura);
+  margin-top:12px;
+  opacity:0;
+  animation:splashIn 0.9s ease 0.9s forwards;
+}
+.splash-bar{
+  width:32px;height:1px;
+  background:var(--sakura);
+  margin-top:22px;
+  opacity:0;
+  transform:scaleX(0);
+  animation:barIn 0.8s ease 1.2s forwards;
+  transform-origin:left;
+}
+@keyframes splashIn{
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes barIn{
+  to{opacity:1;transform:scaleX(1)}
+}
+.app{opacity:0;transition:opacity 0.9s ease}
+.app.visible{opacity:1}
 </style>
 </head>
 <body>
-<div class="app">
+<div id="splash">
+  <div class="splash-eyebrow">我要去獨旅</div>
+  <div class="splash-logo">TOKYO</div>
+  <div class="splash-sub">I'm in tokyo</div>
+  <div class="splash-bar"></div>
+</div>
+
+<div class="app" id="mainApp">
 
 <div class="top-bar">
   <div class="logo">た<span>び</span>手帳</div>
@@ -371,6 +438,16 @@ function switchDay(i){
   document.querySelectorAll('.day-panel').forEach((p,idx)=>p.classList.toggle('show',idx===i));
   document.querySelectorAll('.dtab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
 }
+
+(function(){
+  var splash = document.getElementById('splash');
+  var app = document.getElementById('mainApp');
+  setTimeout(function(){
+    splash.classList.add('fade-out');
+    app.classList.add('visible');
+    setTimeout(function(){ splash.style.display='none'; }, 950);
+  }, 3000);
+})();
 </script>
 </body>
 </html>
