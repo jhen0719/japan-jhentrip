@@ -147,32 +147,72 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
 .t-twd{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:400;color:var(--sakura)}
 
 /* ---- SHOPPING LIST ---- */
-.sl-add-bar{display:flex;gap:8px;margin-bottom:16px}
-.sl-add-bar input{flex:1;border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;background:var(--bg);color:var(--ink)}
-.sl-add-bar input:focus{border-color:var(--sakura)}
-.sl-add-btn{background:var(--ink);color:var(--bg);border:none;border-radius:8px;width:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sl-item{background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;transition:opacity 0.2s}
-.sl-item.checked{opacity:0.45}
-.sl-top{display:flex;align-items:flex-start;gap:10px}
-.sl-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all 0.15s;background:var(--bg)}
-.sl-check.on{background:var(--matcha);border-color:var(--matcha);color:white;font-size:11px}
-.sl-name{flex:1;font-size:13px;color:var(--ink);line-height:1.5;word-break:break-all}
+.sl-fab{position:sticky;bottom:16px;display:flex;justify-content:flex-end;padding:0 4px;pointer-events:none}
+.sl-fab button{pointer-events:all;background:var(--ink);color:white;border:none;border-radius:50px;padding:12px 18px;font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(26,26,24,0.22)}
+.sl-stats{display:flex;gap:8px;margin-bottom:14px}
+.sl-stat{flex:1;background:var(--bg-s);border-radius:10px;padding:10px 12px;text-align:center}
+.sl-stat .sv{font-family:'Noto Serif JP',serif;font-size:17px;font-weight:400;color:var(--ink)}
+.sl-stat .sl{font-size:10px;color:var(--ink-t);margin-top:2px}
+.sl-section-label{font-size:11px;color:var(--ink-t);letter-spacing:0.08em;margin:14px 0 8px;padding-bottom:5px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sl-item{background:var(--bg);border:0.5px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:opacity 0.2s}
+.sl-item.checked{opacity:0.5}
+.sl-item-top{display:flex;align-items:center;gap:0;cursor:pointer}
+.sl-check{width:48px;height:52px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
+.sl-check-circle{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:var(--bg)}
+.sl-check-circle.on{background:var(--matcha);border-color:var(--matcha)}
+.sl-item-info{flex:1;min-width:0;padding:12px 0}
+.sl-name{font-size:14px;font-weight:500;color:var(--ink);line-height:1.4}
 .sl-item.checked .sl-name{text-decoration:line-through;color:var(--ink-t)}
-.sl-del-btn{background:none;border:none;cursor:pointer;color:var(--ink-t);padding:2px;display:flex;margin-left:auto}
-.sl-actions{display:flex;align-items:center;gap:6px;margin-top:8px;margin-left:30px}
-.sl-price-wrap{display:flex;align-items:center;gap:4px;flex:1;min-width:0}
-.sl-price-label{font-size:11px;color:var(--ink-t);flex-shrink:0}
-.sl-price-input{border:0.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;width:80px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);outline:none}
-.sl-price-twd{font-size:12px;color:var(--sakura);font-weight:500;white-space:nowrap}
-.sl-img-btn{font-size:11px;color:var(--sora);background:var(--sora-bg);border:0.5px solid #b5d4f4;border-radius:6px;padding:4px 8px;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap;flex-shrink:0}
-.compare-row{display:flex;align-items:center;gap:6px;margin-top:6px;margin-left:30px}
-.compare-input{border:0.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;width:80px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);outline:none}
+.sl-item-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
+.sl-best-price{font-size:12px;color:var(--matcha);font-weight:500}
+.sl-price-tag{font-size:11px;color:var(--ink-t)}
+.sl-edit-btn{width:44px;height:52px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--ink-t);flex-shrink:0}
+.sl-imgs-row{display:flex;gap:6px;padding:0 12px 12px 48px;flex-wrap:wrap}
+.sl-img-thumb{width:64px;height:64px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border);cursor:pointer;transition:transform 0.1s}
+.sl-img-thumb:active{transform:scale(0.96)}
+
+/* item modal */
+.sl-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:600;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.22s}
+.sl-modal-overlay.open{opacity:1;pointer-events:all}
+.sl-modal-sheet{background:var(--bg);border-radius:20px 20px 0 0;padding:20px 18px 40px;width:100%;max-width:480px;transform:translateY(50px);transition:transform 0.3s ease;max-height:92vh;overflow-y:auto}
+.sl-modal-overlay.open .sl-modal-sheet{transform:translateY(0)}
+.sl-modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.sl-modal-title{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;margin-bottom:14px;color:var(--ink)}
+.sl-field{margin-bottom:11px}
+.sl-field-label{font-size:11px;color:var(--ink-t);margin-bottom:4px}
+.sl-field input,.sl-field textarea{width:100%;border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);outline:none}
+.sl-field input:focus,.sl-field textarea:focus{border-color:var(--sakura)}
+.price-compare-wrap{background:var(--bg-s);border-radius:12px;padding:12px 14px;margin-bottom:11px}
+.price-compare-title{font-size:12px;font-weight:500;color:var(--ink-s);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.price-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.price-col{background:var(--bg);border-radius:8px;padding:10px 10px 8px;border:0.5px solid var(--border)}
+.price-col-label{font-size:10px;color:var(--ink-t);margin-bottom:6px}
+.price-col input{width:100%;border:none;outline:none;font-size:15px;font-family:'Noto Serif JP',serif;font-weight:400;color:var(--ink);background:transparent}
+.price-col .where-input{font-size:11px;font-family:'Noto Sans JP',sans-serif;color:var(--ink-s);background:transparent;border:none;border-top:0.5px solid var(--border);outline:none;width:100%;padding-top:5px;margin-top:5px}
+.price-col .twd-convert{font-size:11px;color:var(--sakura);margin-top:4px}
+.price-verdict{text-align:center;font-size:12px;padding:6px 0 2px}
+.verdict-better{color:var(--matcha);font-weight:500}
+.verdict-worse{color:var(--sakura)}
+.sl-imgs-section{margin-bottom:11px}
+.sl-imgs-preview-edit{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.sl-img-edit-wrap{position:relative}
+.sl-img-edit-wrap img{width:68px;height:68px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)}
+.sl-img-remove{position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:var(--sakura);color:white;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.sl-add-img-btn{width:68px;height:68px;border:1px dashed var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:var(--bg-s);color:var(--ink-t);font-size:10px;gap:3px}
+.sl-modal-actions{display:flex;gap:8px;margin-top:16px}
+.sl-btn-save{flex:1;background:var(--ink);color:white;border:none;border-radius:10px;padding:13px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
+.sl-btn-cancel{background:var(--bg-s);color:var(--ink-s);border:0.5px solid var(--border);border-radius:10px;padding:13px 16px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
+.sl-btn-del{background:var(--sakura-bg);color:var(--sakura);border:0.5px solid #e4b0ba;border-radius:10px;padding:13px 14px;display:flex;align-items:center;cursor:pointer}
+
+/* lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:700;display:none;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox img{max-width:92vw;max-height:88vh;border-radius:10px;object-fit:contain}
+.lightbox-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);border:none;color:white;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px}
+
 .compare-badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
 .compare-better{background:var(--matcha-bg);color:var(--matcha)}
 .compare-worse{background:var(--sakura-bg);color:var(--sakura)}
-.sl-img-preview{margin-top:8px;margin-left:30px;display:flex;gap:6px;flex-wrap:wrap}
-.sl-img-preview img{width:60px;height:60px;object-fit:cover;border-radius:6px;border:0.5px solid var(--border);cursor:pointer}
-.sl-section-label{font-size:11px;color:var(--ink-t);letter-spacing:0.08em;margin:14px 0 8px;padding-bottom:6px;border-bottom:0.5px solid var(--border)}
 </style>
 </head>
 <body>
@@ -266,14 +306,14 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
       <p>勾選已購 · 比價 · 加圖片</p>
     </div>
     <div class="page-scroll">
-      <div class="sl-add-bar">
-        <input id="slInput" type="text" placeholder="新增商品名稱…" onkeydown="if(event.key==='Enter')addShopItem()">
-        <button class="sl-add-btn" onclick="addShopItem()"><span class="ms" style="font-size:20px">add</span></button>
-      </div>
+      <div class="sl-stats" id="slStats" style="display:none"></div>
       <div id="slUnchecked"></div>
       <div id="slCheckedWrap" style="display:none">
-        <div class="sl-section-label">已購買</div>
+        <div class="sl-section-label">已購買 <span id="slCheckedCount" style="color:var(--ink-t)"></span></div>
         <div id="slChecked"></div>
+      </div>
+      <div class="sl-fab">
+        <button onclick="openSlModal()"><span class="ms" style="font-size:20px">add</span>新增商品</button>
       </div>
     </div>
   </div>
@@ -365,6 +405,17 @@ function switchTab(i){
 })();
 
 /* ============================================================
+   ESCAPE HELPER
+   ============================================================ */
+function esc(s){
+  return String(s||'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+/* ============================================================
    ITINERARY DATA
    ============================================================ */
 var NUMS = ['❶','❷','❸','❹','❺','❻','❼','❽','❾','❿'];
@@ -420,26 +471,16 @@ var currentDay = 0;
 function renderItinerary(){
   var html = '';
   days.forEach(function(day, di){
-    html += '<div id="d'+di+'" class="day-panel'+(di===currentDay?' show':'')+'">';
-    html += '<div class="day-header">';
-    html += '<div class="dnum">'+day.dayNum+'</div>';
-    html += '<div class="dinfo">';
-    html += '<h2>'+day.title+'</h2>';
-    html += '<p>'+day.sub+'</p>';
-    html += '</div></div>';
+    html += '<div id="d'+di+'" class="day-panel'+(di===currentDay?' show':'')+'"><div class="day-header"><div class="dnum">'+day.dayNum+'</div><div class="dinfo"><h2>'+esc(day.title)+'</h2><p>'+esc(day.sub)+'</p></div></div>';
     day.steps.forEach(function(step, si){
       var isLast = si===day.steps.length-1;
-      html += '<div class="step">';
-      html += '<div class="step-left"><div class="step-num">'+(NUMS[si]||si+1)+'</div>'+(isLast?'':'<div class="step-line"></div>')+'</div>';
+      html += '<div class="step"><div class="step-left"><div class="step-num">'+(NUMS[si]||si+1)+'</div>'+(isLast?'':'<div class="step-line"></div>')+'</div>';
       html += '<div class="step-card '+step.type+'" onclick="openEdit('+di+','+si+')">';
-      html += '<div style="display:flex;align-items:flex-start;gap:6px">';
-      html += '<div style="flex:1;min-width:0">';
+      html += '<div style="display:flex;align-items:flex-start;gap:6px"><div style="flex:1;min-width:0">';
       html += '<div class="sc-head"><span class="sc-title">'+esc(step.title)+'</span>'+(step.time?'<span class="sc-time">'+esc(step.time)+'</span>':'')+'</div>';
       if(step.notes) html += '<div class="sc-sub">'+esc(step.notes)+'</div>';
-      if(step.link) html += '<a class="link-btn" href="'+step.link+'" target="_blank" onclick="event.stopPropagation()"><span class="ms">location_on</span>'+esc(step.linkLabel)+'</a>';
-      html += '</div>';
-      html += '<span class="ms edit-icon" style="font-size:14px">edit</span>';
-      html += '</div></div></div>';
+      if(step.link) html += '<a class="link-btn" href="'+esc(step.link)+'" target="_blank" onclick="event.stopPropagation()"><span class="ms">location_on</span>'+esc(step.linkLabel)+'</a>';
+      html += '</div><span class="ms edit-icon" style="font-size:14px">edit</span></div></div></div>';
     });
     html += '<button class="add-step-btn" onclick="openAddStep('+di+')"><span class="ms" style="font-size:18px">add_circle</span>新增行程</button>';
     html += '</div>';
@@ -447,15 +488,13 @@ function renderItinerary(){
   document.getElementById('itinerary-container').innerHTML = html;
 }
 
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
 function switchDay(i){
   currentDay = i;
   document.querySelectorAll('.day-panel').forEach(function(p,idx){ p.classList.toggle('show', idx===i); });
   document.querySelectorAll('.dtab').forEach(function(t,idx){ t.classList.toggle('active', idx===i); });
 }
 
-/* ---- MODAL ---- */
+/* ---- EDIT MODAL ---- */
 var editingDay=-1, editingStep=-1, isAdding=false;
 
 function openEdit(di,si){
@@ -501,13 +540,11 @@ function timeToMin(t){
   var parts=t.trim().split(':');
   if(parts.length<2) return 9999;
   var h=parseInt(parts[0])||0, m=parseInt(parts[1])||0;
-  // treat times 0-5 as next-day (after midnight)
   if(h<6) h+=24;
   return h*60+m;
 }
 
 function sortSteps(di){
-  // only sort steps that have a time; no-time steps stay at end in original order
   var withTime=[], noTime=[];
   days[di].steps.forEach(function(s){ (s.time&&s.time.trim()?withTime:noTime).push(s); });
   withTime.sort(function(a,b){ return timeToMin(a.time)-timeToMin(b.time); });
@@ -550,7 +587,7 @@ var currentRate=0.2130, ledger=[];
 function fetchRate(){
   document.getElementById('rateTime').textContent='更新中…';
   fetch('https://api.exchangerate-api.com/v4/latest/JPY')
-    .then(function(r){return r.json()})
+    .then(function(r){return r.json();})
     .then(function(d){
       currentRate=d.rates.TWD;
       document.getElementById('rateNum').textContent=currentRate.toFixed(4);
@@ -584,125 +621,208 @@ function addLedger(){
 
 function renderLedger(){
   document.getElementById('ledgerList').innerHTML=ledger.map(function(item,i){
-    return '<div class="ledger-item">'+
-      '<div class="li-info"><div class="li-name">'+esc(item.name)+'</div><div class="li-jpy">¥'+item.jpy.toLocaleString()+'</div></div>'+
-      '<div class="li-twd">NT$ '+item.twd.toLocaleString()+'</div>'+
-      '<button class="li-del" onclick="delLedger('+i+')"><span class="ms">delete</span></button>'+
-    '</div>';
+    return '<div class="ledger-item"><div class="li-info"><div class="li-name">'+esc(item.name)+'</div><div class="li-jpy">¥'+item.jpy.toLocaleString()+'</div></div><div class="li-twd">NT$ '+item.twd.toLocaleString()+'</div><button class="li-del" onclick="delLedger('+i+')"><span class="ms">delete</span></button></div>';
   }).join('');
   var tot=document.getElementById('ledgerTotal');
   if(ledger.length){
     tot.style.display='flex';
-    document.getElementById('totalJpy').textContent='¥'+ledger.reduce(function(s,x){return s+x.jpy},0).toLocaleString();
-    document.getElementById('totalTwd').textContent='NT$ '+ledger.reduce(function(s,x){return s+x.twd},0).toLocaleString();
+    document.getElementById('totalJpy').textContent='¥'+ledger.reduce(function(s,x){return s+x.jpy;},0).toLocaleString();
+    document.getElementById('totalTwd').textContent='NT$ '+ledger.reduce(function(s,x){return s+x.twd;},0).toLocaleString();
   } else { tot.style.display='none'; }
 }
 
 function delLedger(i){ ledger.splice(i,1); renderLedger(); }
 
 /* ============================================================
+   LIGHTBOX
+   ============================================================ */
+function openLightbox(src){
+  document.getElementById('lightboxImg').src=src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+/* ============================================================
    SHOPPING LIST
    ============================================================ */
 var shopItems=[];
+var slEditingId=null;
+var slTempImgs=[];
 
-function addShopItem(){
-  var inp=document.getElementById('slInput');
-  var name=inp.value.trim();
-  if(!name) return;
-  shopItems.unshift({id:Date.now(),name:name,checked:false,price:'',price2:'',imgs:[]});
-  inp.value='';
-  renderShop();
+function openSlModal(editId){
+  slEditingId=editId||null;
+  slTempImgs=[];
+  var item=editId?shopItems.find(function(x){return x.id===editId;}):null;
+  document.getElementById('slModalTitle').textContent=item?'編輯商品':'新增商品';
+  document.getElementById('slNameInput').value=item?item.name:'';
+  document.getElementById('slNoteInput').value=item?(item.note||''):'';
+  document.getElementById('slPrice1').value=item?(item.price1||''):'';
+  document.getElementById('slWhere1').value=item?(item.where1||''):'';
+  document.getElementById('slPrice2').value=item?(item.price2||''):'';
+  document.getElementById('slWhere2').value=item?(item.where2||''):'';
+  slTempImgs=item?item.imgs.slice():[];
+  document.getElementById('slBtnDel').style.display=item?'':'none';
+  updateSlCompare();
+  renderSlImgsEdit();
+  document.getElementById('slModal').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(function(){ document.getElementById('slNameInput').focus(); },300);
 }
 
-function toggleCheck(id){
-  var item=shopItems.find(function(x){return x.id===id});
-  if(item){item.checked=!item.checked;renderShop();}
+function closeSlModal(){
+  document.getElementById('slModal').classList.remove('open');
+  document.body.style.overflow='';
 }
 
-function delShopItem(id){
-  shopItems=shopItems.filter(function(x){return x.id!==id});
-  renderShop();
+function updateSlCompare(){
+  var p1=parseFloat(document.getElementById('slPrice1').value)||0;
+  var p2=parseFloat(document.getElementById('slPrice2').value)||0;
+  document.getElementById('slTwd1').textContent=p1?'≈ NT$'+Math.round(p1*currentRate).toLocaleString():'';
+  document.getElementById('slTwd2').textContent=p2?'≈ NT$'+Math.round(p2*currentRate).toLocaleString():'';
+  var v=document.getElementById('slVerdict');
+  if(p1&&p2){
+    if(p1<p2) v.innerHTML='<span class="verdict-better">價格1 較便宜，省 ¥'+(p2-p1).toLocaleString()+'</span>';
+    else if(p2<p1) v.innerHTML='<span class="verdict-better">價格2 較便宜，省 ¥'+(p1-p2).toLocaleString()+'</span>';
+    else v.innerHTML='<span style="color:var(--ink-t)">兩者相同</span>';
+  } else { v.innerHTML=''; }
 }
 
-function updatePrice(id,val,field){
-  var item=shopItems.find(function(x){return x.id===id});
-  if(item){item[field]=val;renderShopTWD(id);}
-}
-
-function renderShopTWD(id){
-  var item=shopItems.find(function(x){return x.id===id});
-  if(!item) return;
-  var p1=parseFloat(item.price)||0, p2=parseFloat(item.price2)||0;
-  var e1=document.getElementById('twd-'+id+'-1'), e2=document.getElementById('twd-'+id+'-2');
-  var b1=document.getElementById('badge-'+id+'-1'), b2=document.getElementById('badge-'+id+'-2');
-  if(e1) e1.textContent=p1?'NT$'+Math.round(p1*currentRate).toLocaleString():'';
-  if(e2) e2.textContent=p2?'NT$'+Math.round(p2*currentRate).toLocaleString():'';
-  if(p1&&p2&&b1&&b2){
-    if(p1<p2){b1.textContent='較便宜';b1.className='compare-badge compare-better';b2.textContent='較貴';b2.className='compare-badge compare-worse';}
-    else if(p2<p1){b2.textContent='較便宜';b2.className='compare-badge compare-better';b1.textContent='較貴';b1.className='compare-badge compare-worse';}
-    else{b1.textContent='相同';b1.className='compare-badge';b2.textContent='相同';b2.className='compare-badge';}
-    b1.style.display='';b2.style.display='';
-  } else {
-    if(b1)b1.style.display='none';
-    if(b2)b2.style.display='none';
-  }
-}
-
-function addImg(id){
+function slAddImg(){
   var inp=document.createElement('input');
-  inp.type='file';inp.accept='image/*';
+  inp.type='file'; inp.accept='image/*'; inp.multiple=true;
   inp.onchange=function(){
-    var file=inp.files[0];if(!file)return;
-    var reader=new FileReader();
-    reader.onload=function(e){
-      var item=shopItems.find(function(x){return x.id===id});
-      if(item){item.imgs.push(e.target.result);renderShop();}
-    };
-    reader.readAsDataURL(file);
+    var files=Array.from(inp.files);
+    var pending=files.length;
+    files.forEach(function(file){
+      var reader=new FileReader();
+      reader.onload=function(e){
+        slTempImgs.push(e.target.result);
+        pending--;
+        if(pending===0) renderSlImgsEdit();
+      };
+      reader.readAsDataURL(file);
+    });
   };
   inp.click();
 }
 
-function removeImg(id,idx){
-  var item=shopItems.find(function(x){return x.id===id});
-  if(item){item.imgs.splice(idx,1);renderShop();}
+function slRemoveImg(i){ slTempImgs.splice(i,1); renderSlImgsEdit(); }
+
+function renderSlImgsEdit(){
+  var html=slTempImgs.map(function(src,i){
+    return '<div class="sl-img-edit-wrap"><img src="'+src+'" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)"><button class="sl-img-remove" onclick="slRemoveImg('+i+')">×</button></div>';
+  }).join('');
+  html+='<div class="sl-add-img-btn" onclick="slAddImg()"><span class="ms" style="font-size:22px">add_photo_alternate</span>加圖</div>';
+  document.getElementById('slImgsEdit').innerHTML=html;
+}
+
+function saveSlItem(){
+  var name=document.getElementById('slNameInput').value.trim();
+  if(!name){ alert('請輸入商品名稱'); return; }
+  var existing=slEditingId?shopItems.find(function(x){return x.id===slEditingId;}):null;
+  var item={
+    id:slEditingId||Date.now(),
+    name:name,
+    note:document.getElementById('slNoteInput').value.trim(),
+    price1:document.getElementById('slPrice1').value.trim(),
+    where1:document.getElementById('slWhere1').value.trim(),
+    price2:document.getElementById('slPrice2').value.trim(),
+    where2:document.getElementById('slWhere2').value.trim(),
+    imgs:slTempImgs.slice(),
+    checked:existing?existing.checked:false
+  };
+  if(slEditingId){
+    var idx=shopItems.findIndex(function(x){return x.id===slEditingId;});
+    if(idx>-1) shopItems[idx]=item; else shopItems.unshift(item);
+  } else { shopItems.unshift(item); }
+  closeSlModal();
+  renderShop();
+}
+
+function slDeleteItem(){
+  if(!slEditingId||!confirm('確定刪除？')) return;
+  shopItems=shopItems.filter(function(x){return x.id!==slEditingId;});
+  closeSlModal();
+  renderShop();
+}
+
+function toggleCheck(id){
+  var item=shopItems.find(function(x){return x.id===id;});
+  if(item){ item.checked=!item.checked; renderShop(); }
+}
+
+function bestPrice(item){
+  var p1=parseFloat(item.price1)||0, p2=parseFloat(item.price2)||0;
+  if(p1&&p2) return Math.min(p1,p2);
+  return p1||p2||0;
 }
 
 function renderShopItem(item){
-  var imgs=item.imgs.map(function(src,i){
-    return '<img src="'+src+'" onclick="removeImg('+item.id+','+i+')" title="點擊移除">';
+  var p1=parseFloat(item.price1)||0, p2=parseFloat(item.price2)||0;
+  var best=bestPrice(item);
+  var metaHtml='';
+  if(best){
+    metaHtml+='<span class="sl-best-price">¥'+best.toLocaleString()+'</span>';
+    metaHtml+='<span class="sl-price-tag">≈ NT$'+Math.round(best*currentRate).toLocaleString()+'</span>';
+  }
+  if(item.note) metaHtml+='<span class="sl-price-tag">'+esc(item.note)+'</span>';
+  if(p1&&p2){
+    var w=p1<p2?(item.where1||'價格1'):(item.where2||'價格2');
+    metaHtml+='<span class="compare-badge compare-better">'+esc(w)+' 最划算</span>';
+  }
+  // images
+  var imgsHtml=item.imgs.map(function(src,i){
+    // use data attribute to avoid quote nesting issues
+    return '<img class="sl-img-thumb" src="'+src+'" data-idx="'+i+'" data-id="'+item.id+'" onclick="openLightboxFromThumb(this)">';
   }).join('');
-  return '<div class="sl-item'+(item.checked?' checked':'')+'">'+
-    '<div class="sl-top">'+
-      '<div class="sl-check'+(item.checked?' on':'')+'" onclick="toggleCheck('+item.id+')">'+(item.checked?'✓':'')+'</div>'+
-      '<div class="sl-name">'+esc(item.name)+'</div>'+
-      '<button class="sl-del-btn" onclick="delShopItem('+item.id+')"><span class="ms">delete</span></button>'+
-    '</div>'+
-    '<div class="sl-actions">'+
-      '<div class="sl-price-wrap">'+
-        '<span class="sl-price-label">¥</span>'+
-        '<input class="sl-price-input" value="'+(item.price||'')+'" placeholder="價格1" inputmode="numeric" oninput="updatePrice('+item.id+',this.value,\'price\')">'+
-        '<span class="sl-price-twd" id="twd-'+item.id+'-1">'+(item.price?'NT$'+Math.round(parseFloat(item.price)*currentRate).toLocaleString():'')+'</span>'+
-        '<span class="compare-badge" id="badge-'+item.id+'-1" style="display:none"></span>'+
+  var checked=item.checked?'checked':'';
+  var on=item.checked?' on':'';
+  var nameStyle=item.checked?' style="text-decoration:line-through;color:var(--ink-t)"':'';
+  return '<div class="sl-item '+checked+'">'+
+    '<div class="sl-item-top">'+
+      '<div class="sl-check" onclick="toggleCheck('+item.id+')">'+
+        '<div class="sl-check-circle'+on+'">'+
+          (item.checked?'<span class="ms" style="font-size:14px;color:white">check</span>':'')+
+        '</div>'+
       '</div>'+
-      '<button class="sl-img-btn" onclick="addImg('+item.id+')"><span class="ms" style="font-size:13px">add_photo_alternate</span>圖</button>'+
+      '<div class="sl-item-info">'+
+        '<div class="sl-name"'+nameStyle+'>'+esc(item.name)+'</div>'+
+        (metaHtml?'<div class="sl-item-meta">'+metaHtml+'</div>':'')+
+      '</div>'+
+      '<button class="sl-edit-btn" onclick="openSlModal('+item.id+')"><span class="ms" style="font-size:18px">chevron_right</span></button>'+
     '</div>'+
-    '<div class="compare-row">'+
-      '<span class="sl-price-label">比價 ¥</span>'+
-      '<input class="compare-input" value="'+(item.price2||'')+'" placeholder="價格2" inputmode="numeric" oninput="updatePrice('+item.id+',this.value,\'price2\')">'+
-      '<span class="sl-price-twd" id="twd-'+item.id+'-2">'+(item.price2?'NT$'+Math.round(parseFloat(item.price2)*currentRate).toLocaleString():'')+'</span>'+
-      '<span class="compare-badge" id="badge-'+item.id+'-2" style="display:none"></span>'+
-    '</div>'+
-    (imgs?'<div class="sl-img-preview">'+imgs+'</div>':'')+
+    (imgsHtml?'<div class="sl-imgs-row">'+imgsHtml+'</div>':'')+
   '</div>';
 }
 
+function openLightboxFromThumb(el){
+  openLightbox(el.src);
+}
+
 function renderShop(){
-  var unc=shopItems.filter(function(x){return !x.checked});
-  var chk=shopItems.filter(function(x){return x.checked});
+  var unc=shopItems.filter(function(x){return !x.checked;});
+  var chk=shopItems.filter(function(x){return x.checked;});
   document.getElementById('slUnchecked').innerHTML=unc.map(renderShopItem).join('');
   document.getElementById('slChecked').innerHTML=chk.map(renderShopItem).join('');
-  document.getElementById('slCheckedWrap').style.display=chk.length?'block':'none';
+  var cw=document.getElementById('slCheckedWrap');
+  cw.style.display=chk.length?'block':'none';
+  if(chk.length) document.getElementById('slCheckedCount').textContent=chk.length+'件';
+  var stats=document.getElementById('slStats');
+  var total=shopItems.length;
+  if(total){
+    var spent=chk.reduce(function(s,x){return s+bestPrice(x);},0);
+    var budget=shopItems.reduce(function(s,x){return s+bestPrice(x);},0);
+    stats.style.display='flex';
+    stats.innerHTML=
+      '<div class="sl-stat"><div class="sv">'+total+'</div><div class="sl">商品</div></div>'+
+      '<div class="sl-stat"><div class="sv">'+chk.length+'</div><div class="sl">已買</div></div>'+
+      '<div class="sl-stat"><div class="sv" style="font-size:13px">¥'+Math.round(spent).toLocaleString()+'</div><div class="sl">已花費</div></div>'+
+      '<div class="sl-stat"><div class="sv" style="font-size:13px">¥'+Math.round(budget-spent).toLocaleString()+'</div><div class="sl">預計還要花</div></div>';
+  } else { stats.style.display='none'; }
 }
 
 /* ============================================================
@@ -710,5 +830,59 @@ function renderShop(){
    ============================================================ */
 renderItinerary();
 </script>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()"><span class="ms" style="font-size:20px;color:white">close</span></button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- SHOPPING ITEM MODAL -->
+<div class="sl-modal-overlay" id="slModal" onclick="if(event.target===this)closeSlModal()">
+  <div class="sl-modal-sheet">
+    <div class="sl-modal-handle"></div>
+    <div class="sl-modal-title" id="slModalTitle">新增商品</div>
+    <div class="sl-field">
+      <div class="sl-field-label">商品名稱</div>
+      <input id="slNameInput" type="text" placeholder="例：Kiddy Land 扭蛋">
+    </div>
+    <div class="sl-field">
+      <div class="sl-field-label">備註（選填）</div>
+      <input id="slNoteInput" type="text" placeholder="顏色、尺寸、數量…">
+    </div>
+    <div class="price-compare-wrap">
+      <div class="price-compare-title"><span class="ms" style="font-size:15px">compare_arrows</span>比價</div>
+      <div class="price-row">
+        <div class="price-col">
+          <div class="price-col-label">價格 1</div>
+          <input id="slPrice1" type="number" inputmode="numeric" placeholder="¥0" oninput="updateSlCompare()">
+          <input class="where-input" id="slWhere1" type="text" placeholder="在哪看到？">
+          <div class="twd-convert" id="slTwd1"></div>
+        </div>
+        <div class="price-col">
+          <div class="price-col-label">價格 2</div>
+          <input id="slPrice2" type="number" inputmode="numeric" placeholder="¥0" oninput="updateSlCompare()">
+          <input class="where-input" id="slWhere2" type="text" placeholder="在哪看到？">
+          <div class="twd-convert" id="slTwd2"></div>
+        </div>
+      </div>
+      <div class="price-verdict" id="slVerdict"></div>
+    </div>
+    <div class="sl-imgs-section sl-field">
+      <div class="sl-field-label">圖片</div>
+      <div class="sl-imgs-preview-edit" id="slImgsEdit">
+        <div class="sl-add-img-btn" onclick="slAddImg()">
+          <span class="ms" style="font-size:22px">add_photo_alternate</span>加圖
+        </div>
+      </div>
+    </div>
+    <div class="sl-modal-actions">
+      <button class="sl-btn-cancel" onclick="closeSlModal()">取消</button>
+      <button class="sl-btn-del" id="slBtnDel" onclick="slDeleteItem()" style="display:none"><span class="ms" style="font-size:18px">delete</span></button>
+      <button class="sl-btn-save" onclick="saveSlItem()">儲存</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
