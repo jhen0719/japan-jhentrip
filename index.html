@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>日本旅遊行程 2025</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -29,14 +29,14 @@
 html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:var(--ink);min-height:100vh}
 .app{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative}
 
+.ms{font-family:'Material Symbols Outlined';font-style:normal;display:inline-flex;align-items:center;font-size:16px;line-height:1;vertical-align:-3px;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 20}
 .top-bar{padding:20px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
 .logo{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:300;letter-spacing:0.08em;color:var(--ink)}
 .logo span{color:var(--sakura)}
 .trip-meta{font-size:11px;color:var(--ink-t);text-align:right}
 
-.day-tabs{display:flex;gap:6px;padding:14px 16px 12px;overflow-x:auto;scrollbar-width:none;border-bottom:0.5px solid var(--border)}
-.day-tabs::-webkit-scrollbar{display:none}
-.dtab{flex-shrink:0;padding:7px 14px;border-radius:20px;border:0.5px solid var(--border);font-size:12px;cursor:pointer;color:var(--ink-s);background:var(--bg);font-family:'Noto Sans JP',sans-serif;transition:all 0.15s;line-height:1.4}
+.day-tabs{display:flex;padding:10px 12px;border-bottom:0.5px solid var(--border);gap:6px}
+.dtab{flex:1;padding:7px 4px;border-radius:20px;border:0.5px solid var(--border);font-size:12px;cursor:pointer;color:var(--ink-s);background:var(--bg);font-family:'Noto Sans JP',sans-serif;transition:all 0.15s;line-height:1.4;text-align:center}
 .dtab.active{background:var(--ink);color:var(--bg);border-color:transparent}
 
 .day-panel{display:none;padding:16px 16px 60px}
@@ -165,8 +165,8 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
 <div class="app" id="mainApp">
 
 <div class="top-bar">
-  <div class="logo">た<span>び</span>手帳</div>
-  <div class="trip-meta">日本 2025<br>06/18 – 06/23</div>
+  <div class="logo">獨旅 in <span>TOKYO</span></div>
+  <div class="trip-meta">2026<br>06/18 – 06/23</div>
 </div>
 
 <div class="legend">
@@ -199,7 +199,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
       <div class="flight-card">
         <div class="flight-row">
           <div><div class="flight-time">02:00</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">桃園</div></div>
-          <div class="flight-arrow"><i class="ti ti-plane"></i></div>
+          <div class="flight-arrow"><span class="ms">flight</span></div>
           <div style="text-align:right"><div class="flight-time">06:30</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">成田</div></div>
         </div>
         <div class="flight-info">樂桃航空 · MM620 · 約4.5小時</div>
@@ -218,7 +218,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
         <span class="tag tag-transport">08:49</span>
       </div>
       <a class="link-btn" href="https://drive.google.com/file/d/1Q8QgRquTQNYSTKiSi4lDa99P1dc2ZGnH/view" target="_blank">
-        <i class="ti ti-ticket"></i>取票教學
+        <span class="ms">confirmation_number</span>取票教學
       </a>
     </div>
   </div>
@@ -236,8 +236,8 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
     <div class="step-card stay">
       <div class="sc-head"><span class="sc-title">先放行李 · 住宿</span><span class="sc-time">10:30</span></div>
       <div class="tag-row">
-        <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
-        <a class="link-btn" href="https://secure.booking.com/app_link/myreservations.zh-tw.html?stid=325542&bn=5489678961&aid=1244849" target="_blank"><i class="ti ti-external-link"></i>訂單</a>
+        <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
+        <a class="link-btn" href="https://secure.booking.com/app_link/myreservations.zh-tw.html?stid=325542&bn=5489678961&aid=1244849" target="_blank"><span class="ms">open_in_new</span>訂單</a>
       </div>
     </div>
   </div>
@@ -247,7 +247,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
     <div class="step-card food">
       <div class="sc-head"><span class="sc-title">麵屋武藏 二天</span><span class="sc-time">11:00</span></div>
       <div class="sc-sub">池袋 · 午餐</div>
-      <a class="link-btn" href="https://maps.app.goo.gl/dSg6YPqbpyRqMTAU6?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
+      <a class="link-btn" href="https://maps.app.goo.gl/dSg6YPqbpyRqMTAU6?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
     </div>
   </div>
 
@@ -259,7 +259,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
       <div class="divider"></div>
       <div style="font-size:12px;font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:8px">
         太陽城 · 10:00–20:00
-        <a class="link-btn" style="margin-top:0" href="https://maps.app.goo.gl/LTyHDWHe8DoygZXW9?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
+        <a class="link-btn" style="margin-top:0" href="https://maps.app.goo.gl/LTyHDWHe8DoygZXW9?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
       </div>
       <div class="sub-list">
         <div class="floor">Alpa B1F</div>
@@ -282,7 +282,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
     <div class="step-left"><div class="step-num">❼</div></div>
     <div class="step-card stay">
       <div class="sc-title">回住宿</div>
-      <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
+      <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
     </div>
   </div>
 </div>
@@ -298,7 +298,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
     <div class="step-left"><div class="step-num">❶</div><div class="step-line"></div></div>
     <div class="step-card stay">
       <div class="sc-title">住宿出發</div>
-      <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
+      <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><span class="ms">location_on</span>地圖</a>
     </div>
   </div>
 
@@ -389,7 +389,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
     <div class="step-left"><div class="step-num">—</div><div class="step-line"></div></div>
     <div class="step-card transport">
       <div class="sc-title">新宿 → 藤澤</div>
-      <a class="link-btn" href="http://xhslink.com/o/2Fu1mUkOO8D" target="_blank"><i class="ti ti-ticket"></i>購票方式</a>
+      <a class="link-btn" href="http://xhslink.com/o/2Fu1mUkOO8D" target="_blank"><span class="ms">confirmation_number</span>購票方式</a>
     </div>
   </div>
 
@@ -423,7 +423,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
       <div class="flight-card">
         <div class="flight-row">
           <div><div class="flight-time">13:25</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">成田</div></div>
-          <div class="flight-arrow"><i class="ti ti-plane"></i></div>
+          <div class="flight-arrow"><span class="ms">flight</span></div>
           <div style="text-align:right"><div class="flight-time">16:00</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">桃園</div></div>
         </div>
         <div class="flight-info">約3.5小時 · 平安抵台！</div>
