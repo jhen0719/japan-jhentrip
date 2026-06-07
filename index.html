@@ -766,14 +766,16 @@ function sortSteps(di){
 function saveEdit(){
   var title=document.getElementById('editTitle').value.trim();
   if(!title){ alert('請輸入標題'); return; }
+  var existing = isAdding ? null : days[editingDay].steps[editingStep];
   var step={
-    id: isAdding ? nextId++ : days[editingDay].steps[editingStep].id,
+    id: isAdding ? nextId++ : existing.id,
     type:document.getElementById('editType').value,
     title:title,
     time:document.getElementById('editTime').value.trim(),
     notes:document.getElementById('editNotes').value.trim(),
     link:document.getElementById('editLink').value.trim(),
-    linkLabel:document.getElementById('editLinkLabel').value.trim()||'連結'
+    linkLabel:document.getElementById('editLinkLabel').value.trim()||'連結',
+    venues: existing ? (existing.venues || []) : []
   };
   if(isAdding) days[editingDay].steps.push(step);
   else days[editingDay].steps[editingStep]=step;
