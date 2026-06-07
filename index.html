@@ -270,7 +270,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .vm-shop-add-btn{background:var(--ink);color:white;border:none;border-radius:8px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;font-size:13px}
 
 /* ── SAVE TOAST ── */
-.save-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--ink);color:white;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:800;white-space:nowrap;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.04em}
+.save-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--ink);color:white;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:800;max-width:90vw;white-space:normal;text-align:center;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.04em}
 .save-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .save-toast.error{background:var(--rose)}
 /* ── SYNC BTN in top bar ── */
@@ -286,13 +286,13 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 
     // ── 請將下面換成你的 Firebase 設定 ──
     const firebaseConfig = {
-  apiKey: "AIzaSyB7Apw0UWc6T_vuU_wR6Eym50DdLM0VUC0",
-  authDomain: "jhentrip.firebaseapp.com",
-  projectId: "jhentrip",
-  storageBucket: "jhentrip.firebasestorage.app",
-  messagingSenderId: "8716132933",
-  appId: "1:8716132933:web:465a415ef79fab4fe2792c"
-};
+      apiKey: "AIzaSyB7Apw0UWc6T_vuU_wR6Eym50DdLM0VUC0",
+      authDomain: "jhentrip.firebaseapp.com",
+      projectId: "jhentrip",
+      storageBucket: "jhentrip.firebasestorage.app",
+      messagingSenderId: "8716132933",
+      appId: "1:8716132933:web:465a415ef79fab4fe2792c"
+    };
     // ──────────────────────────────────
 
     const app  = initializeApp(firebaseConfig);
@@ -300,18 +300,22 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
     const REF  = doc(db, 'tabi', 'data');   // 單一文件儲存所有資料
 
     // ── 儲存 ──
+    // ── 儲存 ──
     window.fbSave = async function() {
       try {
-        await setDoc(REF, {
-          days:      window.days,
-          ledger:    window.ledger,
-          shopItems: window.shopItems,
+        // Deep-clone to strip any non-serialisable values
+        const payload = JSON.parse(JSON.stringify({
+          days:      window.days      || [],
+          ledger:    window.ledger    || [],
+          shopItems: window.shopItems || [],
           savedAt:   new Date().toISOString()
-        });
+        }));
+        await setDoc(REF, payload);
         showSaveToast('已同步到雲端 ☁');
       } catch(e) {
+        const msg = e && e.code ? e.code : (e && e.message ? e.message : String(e));
         console.error('Firebase save error', e);
-        showSaveToast('同步失敗，請檢查網路', true);
+        showSaveToast('同步失敗：' + msg, true);
       }
     };
 
@@ -321,15 +325,19 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
         const snap = await getDoc(REF);
         if (snap.exists()) {
           const d = snap.data();
-          if (d.days)      window.days      = d.days;
-          if (d.ledger)    window.ledger    = d.ledger;
-          if (d.shopItems) window.shopItems = d.shopItems;
+          if (Array.isArray(d.days)      && d.days.length)      window.days      = d.days;
+          if (Array.isArray(d.ledger))                           window.ledger    = d.ledger;
+          if (Array.isArray(d.shopItems))                        window.shopItems = d.shopItems;
           showSaveToast('資料已從雲端載入 ✓');
+        } else {
+          // First time — push local default data up
+          window.fbSave();
         }
       } catch(e) {
+        const msg = e && e.code ? e.code : (e && e.message ? e.message : String(e));
         console.warn('Firebase load error', e);
+        showSaveToast('載入失敗：' + msg, true);
       }
-      // render after load
       if (window.renderItinerary) window.renderItinerary();
       if (window.renderLedger)    window.renderLedger();
       if (window.renderShop)      window.renderShop();
