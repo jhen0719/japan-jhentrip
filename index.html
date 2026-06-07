@@ -10,226 +10,334 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --washi:#f7f3ed;--ink:#1a1a18;--ink-s:#5a5a54;--ink-t:#9a9990;
-  --sakura:#b85c6e;--sakura-bg:#f9eeef;
-  --matcha:#4a6741;--matcha-bg:#edf2eb;
-  --sora:#2f6fa8;--sora-bg:#eaf1f8;
-  --amber:#8a6820;--amber-bg:#f5eed8;
-  --border:rgba(26,26,24,0.12);--bg:#ffffff;--bg-s:#f7f3ed;
+  /* ── Palette ── */
+  --ink:#1c1917;          /* near-black warm */
+  --ink-s:#57534e;        /* secondary text */
+  --ink-t:#a8a29e;        /* tertiary / placeholder */
+  --bg:#ffffff;
+  --bg-s:#fafaf9;         /* subtle surface */
+  --bg-m:#f5f0ea;         /* mid surface / washi */
+  --border:rgba(28,25,23,0.10);
+  --border-m:rgba(28,25,23,0.18);
+
+  /* ── Accent: single sakura rose ── */
+  --rose:#b05068;
+  --rose-d:#8c3d53;       /* pressed / dark */
+  --rose-l:#fdf0f3;       /* tint bg */
+  --rose-m:#e8b4bf;       /* border / muted */
+
+  /* ── Semantic aliases (keep old names so JS still works) ── */
+  --washi:var(--bg-m);
+  --sakura:var(--rose);
+  --sakura-bg:var(--rose-l);
+  --matcha:#4a7c59;       /* success / checked */
+  --matcha-bg:#edf4f0;
+  --sora:var(--ink-s);    /* was blue — now neutral */
+  --sora-bg:var(--bg-s);
+  --amber:var(--ink-s);
+  --amber-bg:var(--bg-s);
 }
-html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:var(--ink);min-height:100vh}
+
+html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var(--ink);min-height:100vh}
 .ms{font-family:'Material Symbols Outlined';font-style:normal;display:inline-flex;align-items:center;font-size:16px;line-height:1;vertical-align:-3px;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 20}
 
-/* ---- APP SHELL ---- */
-.app{max-width:480px;margin:0 auto;background:var(--bg);height:100vh;display:flex;flex-direction:column;opacity:0;transition:opacity 0.9s ease;position:fixed;top:0;left:0;right:0}
+/* ── APP SHELL ── */
+.app{max-width:480px;margin:0 auto;background:var(--bg);height:100vh;display:flex;flex-direction:column;opacity:0;transition:opacity 0.9s ease;position:fixed;top:0;left:0;right:0;box-shadow:0 0 40px rgba(28,25,23,0.08)}
 .app.visible{opacity:1}
 
-/* ---- SPLASH ---- */
-#splash{position:fixed;inset:0;background:var(--washi);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;opacity:1;transition:opacity 0.9s ease}
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;background:var(--bg-m);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;opacity:1;transition:opacity 0.9s ease}
 #splash.fade-out{opacity:0;pointer-events:none}
-.splash-eyebrow{font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:400;letter-spacing:0.28em;color:var(--ink-t);opacity:0;transform:translateY(8px);animation:splashIn 0.8s ease 0.2s forwards;margin-bottom:10px}
+.splash-eyebrow{font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:400;letter-spacing:0.3em;color:var(--ink-t);opacity:0;transform:translateY(8px);animation:splashIn 0.8s ease 0.2s forwards;margin-bottom:10px}
 .splash-logo{font-family:'Noto Serif JP',serif;font-size:54px;font-weight:300;letter-spacing:0.14em;color:var(--ink);opacity:0;transform:translateY(14px);animation:splashIn 0.9s ease 0.5s forwards;line-height:1}
-.splash-sub{font-family:'Noto Serif JP',serif;font-size:14px;font-weight:300;letter-spacing:0.18em;color:var(--sakura);margin-top:12px;opacity:0;animation:splashIn 0.9s ease 0.9s forwards}
-.splash-bar{width:32px;height:1px;background:var(--sakura);margin-top:22px;opacity:0;transform:scaleX(0);animation:barIn 0.8s ease 1.2s forwards;transform-origin:left}
+.splash-sub{font-family:'Noto Serif JP',serif;font-size:13px;font-weight:300;letter-spacing:0.2em;color:var(--rose);margin-top:12px;opacity:0;animation:splashIn 0.9s ease 0.9s forwards}
+.splash-bar{width:28px;height:1px;background:var(--rose);margin-top:22px;opacity:0;transform:scaleX(0);animation:barIn 0.8s ease 1.2s forwards;transform-origin:left}
 @keyframes splashIn{to{opacity:1;transform:translateY(0)}}
 @keyframes barIn{to{opacity:1;transform:scaleX(1)}}
 
-/* ---- TOP BAR ---- */
-.top-bar{padding:18px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);flex-shrink:0}
-.logo{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:300;letter-spacing:0.08em;color:var(--ink)}
-.logo span{color:var(--sakura)}
-.trip-meta{font-size:11px;color:var(--ink-t);text-align:right}
+/* ── TOP BAR ── */
+.top-bar{padding:16px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);flex-shrink:0}
+.logo{font-family:'Noto Serif JP',serif;font-size:17px;font-weight:300;letter-spacing:0.08em;color:var(--ink)}
+.logo span{color:var(--rose)}
+.trip-meta{font-size:10px;color:var(--ink-t);text-align:right;letter-spacing:0.04em}
 
-/* ---- BOTTOM NAV ---- */
-.bottom-nav{display:flex;border-top:0.5px solid var(--border);background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;cursor:pointer;color:var(--ink-t);font-size:10px;letter-spacing:0.04em;gap:3px;background:none;border:none;font-family:'Noto Sans JP',sans-serif;transition:color 0.15s}
+/* ── BOTTOM NAV ── */
+.bottom-nav{display:flex;border-top:0.5px solid var(--border);background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 9px;cursor:pointer;color:var(--ink-t);font-size:10px;letter-spacing:0.04em;gap:3px;background:none;border:none;font-family:'Noto Sans JP',sans-serif;transition:color 0.15s}
 .bnav-btn .ms{font-size:22px}
-.bnav-btn.active{color:var(--sakura)}
+.bnav-btn.active{color:var(--rose)}
 
-/* ---- PAGES ---- */
+/* ── PAGES ── */
 .tab-page{display:none;flex:1;min-height:0;flex-direction:column}
 .tab-page.show{display:flex}
 
-/* ---- ITINERARY ---- */
-.legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:var(--bg-s);font-size:10px;color:var(--ink-s);flex-shrink:0}
+/* ── ITINERARY ── */
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:9px 16px;background:var(--bg-s);font-size:10px;color:var(--ink-t);flex-shrink:0;border-bottom:0.5px solid var(--border);letter-spacing:0.04em}
 .legend-item{display:flex;align-items:center;gap:4px}
-.legend-dot{width:8px;height:16px;border-radius:2px;flex-shrink:0}
-.day-tabs{display:flex;padding:10px 12px;border-bottom:0.5px solid var(--border);gap:6px;flex-shrink:0}
-.dtab{flex:1;padding:7px 4px;border-radius:20px;border:0.5px solid var(--border);font-size:12px;cursor:pointer;color:var(--ink-s);background:var(--bg);font-family:'Noto Sans JP',sans-serif;transition:all 0.15s;line-height:1.4;text-align:center}
-.dtab.active{background:var(--ink);color:var(--bg);border-color:transparent}
+.legend-dot{width:3px;height:14px;border-radius:2px;flex-shrink:0}
+.day-tabs{display:flex;padding:10px 12px;border-bottom:0.5px solid var(--border);gap:5px;flex-shrink:0}
+.dtab{flex:1;padding:7px 4px;border-radius:20px;border:0.5px solid var(--border);font-size:11px;cursor:pointer;color:var(--ink-t);background:var(--bg);font-family:'Noto Sans JP',sans-serif;transition:all 0.18s;line-height:1.5;text-align:center;letter-spacing:0.02em}
+.dtab.active{background:var(--ink);color:var(--bg);border-color:transparent;letter-spacing:0.02em}
 .day-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
-.day-panel{display:none;padding:16px}
+.day-panel{display:none;padding:14px 14px 20px}
 .day-panel.show{display:block}
 .day-header{display:flex;align-items:baseline;gap:10px;padding:4px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:16px}
-.day-header .dnum{font-family:'Noto Serif JP',serif;font-size:30px;font-weight:300;color:var(--sakura);line-height:1}
+.day-header .dnum{font-family:'Noto Serif JP',serif;font-size:30px;font-weight:300;color:var(--rose);line-height:1}
 .day-header .dinfo h2{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;letter-spacing:0.04em}
 .day-header .dinfo p{font-size:11px;color:var(--ink-t);margin-top:3px}
-.step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
-.step-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:32px}
-.step-num{width:26px;height:26px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--ink-s);flex-shrink:0}
-.step-line{width:1px;background:var(--border);flex:1;min-height:16px;margin-top:3px}
-.step-card{flex:1;background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:11px 13px;min-width:0;cursor:pointer;position:relative}
-.step-card.transport{border-left:2.5px solid #b8cde0;border-radius:0 12px 12px 0}
-.step-card.food{border-left:2.5px solid #e4b0ba;border-radius:0 12px 12px 0}
-.step-card.stay{border-left:2.5px solid #a8c5a0;border-radius:0 12px 12px 0}
-.step-card.shop{border-left:2.5px solid #d4c08a;border-radius:0 12px 12px 0}
-.sc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px}
+.step{display:flex;gap:10px;margin-bottom:9px;align-items:flex-start}
+.step-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:30px}
+.step-num{width:24px;height:24px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg-s);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--ink-t);flex-shrink:0}
+.step-line{width:1px;background:var(--border);flex:1;min-height:14px;margin-top:3px}
+.step-card{flex:1;background:var(--bg);border:0.5px solid var(--border);border-radius:11px;padding:10px 12px;min-width:0;cursor:pointer;position:relative;transition:box-shadow 0.15s}
+.step-card:active{box-shadow:0 2px 8px rgba(28,25,23,0.08)}
+.step-card.transport{border-left:3px solid #b0c4d4;border-radius:0 11px 11px 0}
+.step-card.food{border-left:3px solid var(--rose-m);border-radius:0 11px 11px 0}
+.step-card.stay{border-left:3px solid #9fc4a8;border-radius:0 11px 11px 0}
+.step-card.shop{border-left:3px solid #c8b898;border-radius:0 11px 11px 0}
+.sc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:3px}
 .sc-title{font-size:13px;font-weight:500;line-height:1.4;color:var(--ink)}
-.sc-time{font-size:11px;color:var(--ink-t);white-space:nowrap;padding-top:1px;flex-shrink:0}
+.sc-time{font-size:11px;color:var(--ink-t);white-space:nowrap;padding-top:1px;flex-shrink:0;font-variant-numeric:tabular-nums}
 .sc-sub{font-size:11px;color:var(--ink-s);line-height:1.7;white-space:pre-line}
-.tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
 .tag{font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap}
-.tag-transport{background:var(--sora-bg);color:var(--sora)}
-.link-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--sora);text-decoration:none;padding:4px 9px;border:0.5px solid #b5d4f4;border-radius:6px;margin-top:7px;cursor:pointer;background:var(--sora-bg)}
-.link-btn:hover{background:#d5e8f6}
+.tag-transport{background:var(--bg-s);color:var(--ink-s)}
+.link-btn{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--ink-s);text-decoration:none;padding:4px 9px;border:0.5px solid var(--border-m);border-radius:6px;margin-top:7px;cursor:pointer;background:var(--bg-s);transition:background 0.12s}
+.link-btn:hover{background:var(--bg-m)}
 .divider{height:0.5px;background:var(--border);margin:10px 0}
-.flight-card{background:var(--bg-s);border-radius:10px;padding:10px 12px;margin-top:7px}
+.flight-card{background:var(--bg-s);border-radius:9px;padding:10px 12px;margin-top:7px}
 .flight-row{display:flex;align-items:center;gap:8px}
-.flight-time{font-size:17px;font-weight:500;font-family:'Noto Serif JP',serif;color:var(--ink)}
-.flight-arrow{flex:1;display:flex;align-items:center;gap:4px;color:var(--sora)}
+.flight-time{font-size:17px;font-weight:400;font-family:'Noto Serif JP',serif;color:var(--ink)}
+.flight-arrow{flex:1;display:flex;align-items:center;gap:4px;color:var(--ink-t)}
 .flight-arrow::before,.flight-arrow::after{content:'';height:0.5px;background:var(--border);flex:1}
 .flight-info{font-size:11px;color:var(--ink-s);margin-top:5px}
-.add-step-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:1px dashed var(--border);border-radius:10px;background:transparent;color:var(--ink-t);font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;margin-top:4px;margin-bottom:16px}
-.add-step-btn:hover{background:var(--bg-s);color:var(--ink-s)}
+.add-step-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:1px dashed var(--border-m);border-radius:10px;background:transparent;color:var(--ink-t);font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;margin-top:4px;margin-bottom:14px;transition:background 0.12s}
+.add-step-btn:hover{background:var(--bg-s)}
 .edit-icon{flex-shrink:0;margin-top:1px;color:var(--ink-t)}
 
-/* ---- EDIT MODAL ---- */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal-sheet{background:var(--bg);border-radius:20px 20px 0 0;padding:20px 18px 36px;width:100%;max-width:480px;transform:translateY(40px);transition:transform 0.3s ease;max-height:85vh;overflow-y:auto}
-.modal-overlay.open .modal-sheet{transform:translateY(0)}
-.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
-.modal-title{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;margin-bottom:16px}
-.field-group{margin-bottom:12px}
-.field-label{font-size:11px;color:var(--ink-t);margin-bottom:5px}
-.field-input,.field-select,.field-textarea{width:100%;border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);outline:none}
+/* ── MODALS (shared) ── */
+.modal-overlay,.sl-modal-overlay,.vm-overlay{position:fixed;inset:0;background:rgba(28,25,23,0.4);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.22s}
+.sl-modal-overlay{z-index:600}
+.vm-overlay{z-index:620}
+.modal-overlay.open,.sl-modal-overlay.open,.vm-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet,.sl-modal-sheet,.vm-sheet{background:var(--bg);border-radius:22px 22px 0 0;padding:20px 18px 40px;width:100%;max-width:480px;transform:translateY(40px);transition:transform 0.28s cubic-bezier(0.32,0.72,0,1);overflow-y:auto}
+.sl-modal-sheet{max-height:92vh}
+.vm-sheet{max-height:88vh}
+.modal-sheet{max-height:85vh}
+.modal-overlay.open .modal-sheet,.sl-modal-overlay.open .sl-modal-sheet,.vm-overlay.open .vm-sheet{transform:translateY(0)}
+.modal-handle,.sl-modal-handle,.vm-handle{width:36px;height:4px;background:var(--border-m);border-radius:2px;margin:0 auto 18px}
+.modal-title,.sl-modal-title,.vm-title{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;margin-bottom:16px;color:var(--ink)}
+.field-group,.sl-field,.vm-field{margin-bottom:11px}
+.field-label,.sl-field-label,.vm-field-label{font-size:11px;color:var(--ink-t);margin-bottom:4px;letter-spacing:0.04em}
+.field-input,.field-select,.field-textarea,
+.sl-field input,.sl-field textarea,
+.vm-field input{width:100%;border:0.5px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg-s);outline:none;transition:border-color 0.15s}
 .field-textarea{min-height:72px;resize:vertical;line-height:1.6}
-.field-input:focus,.field-select:focus,.field-textarea:focus{border-color:var(--sakura)}
-.modal-actions{display:flex;gap:8px;margin-top:18px}
-.btn-save{flex:1;background:var(--ink);color:var(--bg);border:none;border-radius:10px;padding:12px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
-.btn-cancel{background:var(--bg-s);color:var(--ink-s);border:0.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
-.btn-delete{background:var(--sakura-bg);color:var(--sakura);border:0.5px solid #e4b0ba;border-radius:10px;padding:12px 14px;font-size:14px;cursor:pointer;display:flex;align-items:center}
+.field-input:focus,.field-select:focus,.field-textarea:focus,
+.sl-field input:focus,.sl-field textarea:focus,.vm-field input:focus{border-color:var(--rose);background:var(--bg)}
+/* shared action rows */
+.modal-actions,.sl-modal-actions,.vm-actions{display:flex;gap:8px;margin-top:16px}
+.btn-save,.sl-btn-save,.vm-btn-save{flex:1;background:var(--ink);color:var(--bg);border:none;border-radius:11px;padding:13px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:background 0.15s}
+.btn-save:active,.sl-btn-save:active,.vm-btn-save:active{background:var(--ink-s)}
+.btn-cancel,.sl-btn-cancel,.vm-btn-cancel{background:var(--bg-s);color:var(--ink-s);border:0.5px solid var(--border);border-radius:11px;padding:13px 16px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
+.btn-delete,.sl-btn-del,.vm-btn-del{background:var(--rose-l);color:var(--rose-d);border:0.5px solid var(--rose-m);border-radius:11px;padding:13px 14px;font-size:14px;cursor:pointer;display:flex;align-items:center}
 
-/* ---- PAGE HEADER ---- */
-.page-header{padding:18px 18px 14px;border-bottom:0.5px solid var(--border);flex-shrink:0}
-.page-header h2{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:400;letter-spacing:0.04em}
+/* ── PAGE HEADER ── */
+.page-header{padding:16px 18px 13px;border-bottom:0.5px solid var(--border);flex-shrink:0}
+.page-header h2{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:400;letter-spacing:0.04em;color:var(--ink)}
 .page-header p{font-size:11px;color:var(--ink-t);margin-top:3px}
 .page-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;min-height:0}
 
-/* ---- EXCHANGE ---- */
-.add-btn{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--sora);background:var(--sora-bg);border:0.5px solid #b5d4f4;border-radius:8px;padding:5px 10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
-/* rate strip */
+/* ── EXCHANGE ── */
+.add-btn{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--ink-s);background:var(--bg-s);border:0.5px solid var(--border-m);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:background 0.12s}
+.add-btn:hover{background:var(--bg-m)}
 .exch-rate-strip{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg-s);border-bottom:0.5px solid var(--border);flex-shrink:0}
 .exch-rate-left{display:flex;align-items:baseline;gap:6px}
 .exch-rate-big{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:300;color:var(--ink)}
 .exch-rate-unit{font-size:11px;color:var(--ink-t)}
 .exch-rate-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
 .exch-rate-note{font-size:10px;color:var(--ink-t)}
-/* converter card */
-.exch-converter{padding:20px 16px 0}
-.exch-card{background:var(--bg);border:0.5px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:0}
+.exch-converter{padding:18px 16px 0}
+.exch-card{background:var(--bg);border:0.5px solid var(--border);border-radius:16px;overflow:hidden}
 .exch-half{padding:16px 18px}
-.exch-half-label{font-size:10px;letter-spacing:0.1em;color:var(--ink-t);margin-bottom:8px;text-transform:uppercase}
+.exch-half-label{font-size:10px;letter-spacing:0.12em;color:var(--ink-t);margin-bottom:8px;text-transform:uppercase}
 .exch-big-row{display:flex;align-items:center;gap:10px}
-.exch-sym{font-size:20px;font-weight:300;color:var(--ink-s);font-family:'Noto Serif JP',serif;min-width:24px}
+.exch-sym{font-size:20px;font-weight:300;color:var(--ink-t);font-family:'Noto Serif JP',serif;min-width:28px}
 .exch-big-input{flex:1;border:none;outline:none;font-size:36px;font-family:'Noto Serif JP',serif;font-weight:300;color:var(--ink);background:transparent;min-width:0;width:100%}
-.exch-big-input::placeholder{color:var(--border)}
-.exch-clear-btn{background:none;border:none;cursor:pointer;color:var(--ink-t);padding:6px;display:flex;border-radius:50%}
+.exch-big-input::placeholder{color:var(--border-m)}
+.exch-clear-btn{background:none;border:none;cursor:pointer;color:var(--ink-t);padding:6px;display:flex;border-radius:50%;transition:background 0.12s}
 .exch-clear-btn:active{background:var(--bg-s)}
 .exch-divider{height:0.5px;background:var(--border);margin:0 18px;position:relative}
 .exch-divider-icon{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--bg);padding:2px 6px;border-radius:20px;border:0.5px solid var(--border)}
-.exch-result-half{padding:16px 18px;background:var(--sakura-bg)}
-.exch-result-num{font-family:'Noto Serif JP',serif;font-size:36px;font-weight:300;color:var(--sakura)}
-.exch-result-sub{font-size:11px;color:var(--sakura);opacity:0.7;margin-top:3px}
-/* quick amounts */
+.exch-result-half{padding:16px 18px;background:var(--rose-l)}
+.exch-result-num{font-family:'Noto Serif JP',serif;font-size:36px;font-weight:300;color:var(--rose)}
+.exch-result-sub{font-size:11px;color:var(--rose);opacity:0.65;margin-top:3px}
 .exch-quick{display:flex;gap:6px;padding:14px 16px;overflow-x:auto;scrollbar-width:none}
 .exch-quick::-webkit-scrollbar{display:none}
-.exch-quick-btn{flex-shrink:0;padding:7px 14px;border-radius:20px;border:0.5px solid var(--border);background:var(--bg);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;color:var(--ink-s);white-space:nowrap}
-.exch-quick-btn:active{background:var(--bg-s)}
-/* ledger */
+.exch-quick-btn{flex-shrink:0;padding:7px 14px;border-radius:20px;border:0.5px solid var(--border);background:var(--bg);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;color:var(--ink-s);white-space:nowrap;transition:all 0.12s}
+.exch-quick-btn:active{background:var(--rose-l);border-color:var(--rose-m);color:var(--rose)}
 .ledger-wrap{padding:0 16px 20px}
 .ledger-head{display:flex;align-items:center;justify-content:space-between;padding:16px 0 10px;border-top:0.5px solid var(--border)}
-.ledger-head h3{font-family:'Noto Serif JP',serif;font-size:14px;font-weight:400}
-.ledger-empty{text-align:center;padding:24px 0;color:var(--ink-t);font-size:13px}
-.ledger-item{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--bg);border:0.5px solid var(--border);border-radius:10px;margin-bottom:6px}
+.ledger-head h3{font-family:'Noto Serif JP',serif;font-size:14px;font-weight:400;color:var(--ink)}
+.ledger-empty{text-align:center;padding:28px 0;color:var(--ink-t);font-size:12px;line-height:1.8}
+.ledger-item{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--bg-s);border:0.5px solid var(--border);border-radius:10px;margin-bottom:6px}
 .li-info{flex:1;min-width:0}
 .li-name{font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .li-jpy{font-size:11px;color:var(--ink-t);margin-top:2px}
-.li-twd{font-size:14px;font-weight:500;color:var(--sakura);white-space:nowrap}
+.li-twd{font-size:13px;font-weight:500;color:var(--rose);white-space:nowrap}
 .li-del{background:none;border:none;cursor:pointer;color:var(--ink-t);padding:4px;display:flex;border-radius:6px}
 .ledger-total{background:var(--ink);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-.t-label{font-size:11px;color:rgba(255,255,255,0.6)}
-.t-jpy{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
+.t-label{font-size:11px;color:rgba(255,255,255,0.55)}
+.t-jpy{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px}
 .t-twd{font-family:'Noto Serif JP',serif;font-size:22px;font-weight:300;color:white}
 
-/* ---- SHOPPING LIST ---- */
+/* ── SHOPPING LIST ── */
 .sl-fab{position:sticky;bottom:16px;display:flex;justify-content:flex-end;padding:0 4px;pointer-events:none}
-.sl-fab button{pointer-events:all;background:var(--ink);color:white;border:none;border-radius:50px;padding:12px 18px;font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(26,26,24,0.22)}
-.sl-stats{display:flex;gap:8px;margin-bottom:14px}
-.sl-stat{flex:1;background:var(--bg-s);border-radius:10px;padding:10px 12px;text-align:center}
-.sl-stat .sv{font-family:'Noto Serif JP',serif;font-size:17px;font-weight:400;color:var(--ink)}
+.sl-fab button{pointer-events:all;background:var(--ink);color:white;border:none;border-radius:50px;padding:12px 20px;font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 20px rgba(28,25,23,0.22);transition:background 0.15s}
+.sl-fab button:active{background:var(--ink-s)}
+.sl-stats{display:flex;gap:7px;margin-bottom:14px}
+.sl-stat{flex:1;background:var(--bg-s);border-radius:10px;padding:10px 8px;text-align:center;border:0.5px solid var(--border)}
+.sl-stat .sv{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:400;color:var(--ink)}
 .sl-stat .sl{font-size:10px;color:var(--ink-t);margin-top:2px}
 .sl-section-label{font-size:11px;color:var(--ink-t);letter-spacing:0.08em;margin:14px 0 8px;padding-bottom:5px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.sl-item{background:var(--bg);border:0.5px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:opacity 0.2s}
-.sl-item.checked{opacity:0.5}
-.sl-item-top{display:flex;align-items:center;gap:0;cursor:pointer}
+.sl-item{background:var(--bg);border:0.5px solid var(--border);border-radius:13px;margin-bottom:9px;overflow:hidden;transition:opacity 0.2s}
+.sl-item.checked{opacity:0.45}
+.sl-item-top{display:flex;align-items:center;cursor:pointer}
 .sl-check{width:48px;height:52px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
-.sl-check-circle{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:var(--bg)}
+.sl-check-circle{width:21px;height:21px;border-radius:50%;border:1.5px solid var(--border-m);display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:var(--bg)}
 .sl-check-circle.on{background:var(--matcha);border-color:var(--matcha)}
 .sl-item-info{flex:1;min-width:0;padding:12px 0}
-.sl-name{font-size:14px;font-weight:500;color:var(--ink);line-height:1.4}
+.sl-name{font-size:13px;font-weight:500;color:var(--ink);line-height:1.4}
 .sl-item.checked .sl-name{text-decoration:line-through;color:var(--ink-t)}
-.sl-item-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
-.sl-best-price{font-size:12px;color:var(--matcha);font-weight:500}
+.sl-item-meta{display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap}
+.sl-best-price{font-size:12px;color:var(--rose);font-weight:500}
 .sl-price-tag{font-size:11px;color:var(--ink-t)}
 .sl-edit-btn{width:44px;height:52px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--ink-t);flex-shrink:0}
 .sl-imgs-row{display:flex;gap:6px;padding:0 12px 12px 48px;flex-wrap:wrap}
-.sl-img-thumb{width:64px;height:64px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border);cursor:pointer;transition:transform 0.1s}
+.sl-img-thumb{width:62px;height:62px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border);cursor:pointer;transition:transform 0.1s}
 .sl-img-thumb:active{transform:scale(0.96)}
-
-/* item modal */
-.sl-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:600;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.22s}
-.sl-modal-overlay.open{opacity:1;pointer-events:all}
-.sl-modal-sheet{background:var(--bg);border-radius:20px 20px 0 0;padding:20px 18px 40px;width:100%;max-width:480px;transform:translateY(50px);transition:transform 0.3s ease;max-height:92vh;overflow-y:auto}
-.sl-modal-overlay.open .sl-modal-sheet{transform:translateY(0)}
-.sl-modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
-.sl-modal-title{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;margin-bottom:14px;color:var(--ink)}
-.sl-field{margin-bottom:11px}
-.sl-field-label{font-size:11px;color:var(--ink-t);margin-bottom:4px}
-.sl-field input,.sl-field textarea{width:100%;border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);outline:none}
-.sl-field input:focus,.sl-field textarea:focus{border-color:var(--sakura)}
-.price-compare-wrap{background:var(--bg-s);border-radius:12px;padding:12px 14px;margin-bottom:11px}
+.price-compare-wrap{background:var(--bg-s);border-radius:12px;padding:12px 14px;margin-bottom:11px;border:0.5px solid var(--border)}
 .price-compare-title{font-size:12px;font-weight:500;color:var(--ink-s);margin-bottom:10px;display:flex;align-items:center;gap:5px}
 .price-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.price-col{background:var(--bg);border-radius:8px;padding:10px 10px 8px;border:0.5px solid var(--border)}
-.price-col-label{font-size:10px;color:var(--ink-t);margin-bottom:6px}
+.price-col{background:var(--bg);border-radius:9px;padding:10px 10px 8px;border:0.5px solid var(--border)}
+.price-col-label{font-size:10px;color:var(--ink-t);margin-bottom:6px;letter-spacing:0.06em}
 .price-col input{width:100%;border:none;outline:none;font-size:15px;font-family:'Noto Serif JP',serif;font-weight:400;color:var(--ink);background:transparent}
 .price-col .where-input{font-size:11px;font-family:'Noto Sans JP',sans-serif;color:var(--ink-s);background:transparent;border:none;border-top:0.5px solid var(--border);outline:none;width:100%;padding-top:5px;margin-top:5px}
-.price-col .twd-convert{font-size:11px;color:var(--sakura);margin-top:4px}
+.price-col .twd-convert{font-size:11px;color:var(--rose);margin-top:4px}
 .price-verdict{text-align:center;font-size:12px;padding:6px 0 2px}
 .verdict-better{color:var(--matcha);font-weight:500}
-.verdict-worse{color:var(--sakura)}
+.verdict-worse{color:var(--rose)}
 .sl-imgs-section{margin-bottom:11px}
 .sl-imgs-preview-edit{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .sl-img-edit-wrap{position:relative}
 .sl-img-edit-wrap img{width:68px;height:68px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)}
-.sl-img-remove{position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:var(--sakura);color:white;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
-.sl-add-img-btn{width:68px;height:68px;border:1px dashed var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:var(--bg-s);color:var(--ink-t);font-size:10px;gap:3px}
-.sl-modal-actions{display:flex;gap:8px;margin-top:16px}
-.sl-btn-save{flex:1;background:var(--ink);color:white;border:none;border-radius:10px;padding:13px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
-.sl-btn-cancel{background:var(--bg-s);color:var(--ink-s);border:0.5px solid var(--border);border-radius:10px;padding:13px 16px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
-.sl-btn-del{background:var(--sakura-bg);color:var(--sakura);border:0.5px solid #e4b0ba;border-radius:10px;padding:13px 14px;display:flex;align-items:center;cursor:pointer}
+.sl-img-remove{position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:var(--rose);color:white;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.sl-add-img-btn{width:68px;height:68px;border:1px dashed var(--border-m);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:var(--bg-s);color:var(--ink-t);font-size:10px;gap:3px}
 
 /* lightbox */
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:700;display:none;align-items:center;justify-content:center}
+.lightbox{position:fixed;inset:0;background:rgba(20,18,16,0.92);z-index:700;display:none;align-items:center;justify-content:center}
 .lightbox.open{display:flex}
 .lightbox img{max-width:92vw;max-height:88vh;border-radius:10px;object-fit:contain}
-.lightbox-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);border:none;color:white;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px}
+.lightbox-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.12);border:none;color:white;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
 .compare-badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
 .compare-better{background:var(--matcha-bg);color:var(--matcha)}
 .compare-worse{background:var(--sakura-bg);color:var(--sakura)}
+
+/* ---- VENUES (nested spots) ---- */
+.venues-wrap{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.venue-row{background:var(--bg-s);border-radius:10px;overflow:hidden;border:0.5px solid var(--border)}
+.venue-header{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer;user-select:none}
+.venue-icon{width:26px;height:26px;border-radius:7px;background:var(--bg-m);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.venue-name{flex:1;font-size:13px;font-weight:500;color:var(--ink)}
+.venue-toggle{color:var(--ink-t);transition:transform 0.2s;display:flex}
+.venue-row.open .venue-toggle{transform:rotate(180deg)}
+.venue-shops{display:none;padding:0 10px 9px 44px;flex-wrap:wrap;gap:4px}
+.venue-row.open .venue-shops{display:flex}
+.shop-chip{font-size:11px;background:var(--bg);border:0.5px solid var(--border);border-radius:14px;padding:3px 9px;color:var(--ink-s)}
+.venue-link{margin-left:auto;flex-shrink:0}
+.venue-add-btn{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-t);padding:7px 10px;cursor:pointer;border-top:0.5px solid var(--border);background:none;border-left:none;border-right:none;border-bottom:none;width:100%;font-family:'Noto Sans JP',sans-serif;transition:color 0.12s}
+.venue-add-btn:hover{color:var(--ink-s)}
+/* venue modal — reuses shared modal styles */
+.vm-shops-wrap{background:var(--bg-s);border-radius:10px;padding:10px 12px;margin-bottom:10px;border:0.5px solid var(--border)}
+.vm-shops-label{font-size:11px;color:var(--ink-t);margin-bottom:8px;letter-spacing:0.04em}
+.vm-shop-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.vm-shop-chip{display:flex;align-items:center;gap:4px;font-size:12px;background:var(--bg);border:0.5px solid var(--border);border-radius:16px;padding:4px 10px;color:var(--ink-s)}
+.vm-shop-del{background:none;border:none;cursor:pointer;color:var(--ink-t);padding:0;line-height:1;font-size:14px}
+.vm-shop-add-row{display:flex;gap:6px}
+.vm-shop-add-row input{flex:1;border:0.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg-s);outline:none}
+.vm-shop-add-row input:focus{border-color:var(--rose);background:var(--bg)}
+.vm-shop-add-btn{background:var(--ink);color:white;border:none;border-radius:8px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;font-size:13px}
+
+/* ── SAVE TOAST ── */
+.save-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--ink);color:white;font-size:12px;padding:8px 18px;border-radius:20px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:800;white-space:nowrap;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.04em}
+.save-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.save-toast.error{background:var(--rose)}
+/* ── SYNC BTN in top bar ── */
+.sync-btn{background:none;border:none;cursor:pointer;color:var(--ink-t);padding:4px 6px;display:flex;align-items:center;gap:3px;font-size:11px;font-family:'Noto Sans JP',sans-serif;border-radius:8px;transition:color 0.15s}
+.sync-btn:hover{color:var(--ink)}
+.sync-btn.syncing .ms{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    // ── 請將下面換成你的 Firebase 設定 ──
+    const firebaseConfig = {
+  apiKey: "AIzaSyB7Apw0UWc6T_vuU_wR6Eym50DdLM0VUC0",
+  authDomain: "jhentrip.firebaseapp.com",
+  projectId: "jhentrip",
+  storageBucket: "jhentrip.firebasestorage.app",
+  messagingSenderId: "8716132933",
+  appId: "1:8716132933:web:465a415ef79fab4fe2792c"
+};
+    // ──────────────────────────────────
+
+    const app  = initializeApp(firebaseConfig);
+    const db   = getFirestore(app);
+    const REF  = doc(db, 'tabi', 'data');   // 單一文件儲存所有資料
+
+    // ── 儲存 ──
+    window.fbSave = async function() {
+      try {
+        await setDoc(REF, {
+          days:      window.days,
+          ledger:    window.ledger,
+          shopItems: window.shopItems,
+          savedAt:   new Date().toISOString()
+        });
+        showSaveToast('已同步到雲端 ☁');
+      } catch(e) {
+        console.error('Firebase save error', e);
+        showSaveToast('同步失敗，請檢查網路', true);
+      }
+    };
+
+    // ── 載入 ──
+    async function fbLoad() {
+      try {
+        const snap = await getDoc(REF);
+        if (snap.exists()) {
+          const d = snap.data();
+          if (d.days)      window.days      = d.days;
+          if (d.ledger)    window.ledger    = d.ledger;
+          if (d.shopItems) window.shopItems = d.shopItems;
+          showSaveToast('資料已從雲端載入 ✓');
+        }
+      } catch(e) {
+        console.warn('Firebase load error', e);
+      }
+      // render after load
+      if (window.renderItinerary) window.renderItinerary();
+      if (window.renderLedger)    window.renderLedger();
+      if (window.renderShop)      window.renderShop();
+    }
+
+    // wait for main app JS to be ready
+    window.addEventListener('appReady', fbLoad);
+  </script>
 </head>
 <body>
 
@@ -247,6 +355,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:va
   <!-- TOP BAR -->
   <div class="top-bar">
     <div class="logo">獨旅 in <span>TOKYO</span></div>
+    <button class="sync-btn" id="syncBtn" onclick="manualSave()" title="同步到雲端"><span class="ms" style="font-size:18px">cloud_sync</span></button>
     <div class="trip-meta">日本 2026<br>06/18 – 06/23</div>
   </div>
 
@@ -473,7 +582,13 @@ var days = [
       {id:103,type:'transport',title:'新宿 → 大塚',time:'10:00',notes:'山手線 · 約15分鐘',link:'',linkLabel:''},
       {id:104,type:'stay',title:'先放行李 · 住宿',time:'10:30',notes:'',link:'https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic',linkLabel:'地圖'},
       {id:105,type:'food',title:'麵屋武藏 二天',time:'11:00',notes:'池袋 · 午餐',link:'https://maps.app.goo.gl/dSg6YPqbpyRqMTAU6?g_st=ic',linkLabel:'地圖'},
-      {id:106,type:'shop',title:'池袋逛街',time:'13:00',notes:'IT TOWER TOKYO · 三麗鷗 GU UQ\n太陽城 10:00–20:00\nAlpa B1F: 吉卜力 · 3coins · MARVEL · Disney\nAlpa 1F: ABC MART · 無印良品 · Loft\nAlpa 2F: Kiddy Land · Snoopy · TOP TOY · 蠟筆小新\nAlpa 3F: 扭蛋\nAnnex B1/1F: 吉伊卡哇',link:'https://maps.app.goo.gl/LTyHDWHe8DoygZXW9?g_st=ic',linkLabel:'地圖'},
+      {id:106,type:'shop',title:'池袋逛街',time:'13:00',notes:'',link:'',linkLabel:'',
+        venues:[
+          {id:'v101',name:'IT TOWER TOKYO',link:'',shops:['三麗鷗','GU','UNIQLO']},
+          {id:'v102',name:'太陽城',link:'https://maps.app.goo.gl/LTyHDWHe8DoygZXW9?g_st=ic',shops:['吉卜力 (B1F)','3coins (B1F)','MARVEL (B1F)','Disney (B1F)','ABC MART (1F)','無印良品 (1F)','Loft (1F)','Kiddy Land (2F)','Snoopy (2F)','TOP TOY (2F)','蠟筆小新 (2F)','扭蛋 (3F)','吉伊卡哇 (Annex B1)']},
+          {id:'v103',name:'GU 池袋',link:'',shops:[]},
+          {id:'v104',name:'UQ 池袋',link:'',shops:[]}
+        ]},
       {id:107,type:'stay',title:'回住宿',time:'',notes:'',link:'https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic',linkLabel:'地圖'}
     ]
   },
@@ -511,19 +626,60 @@ var days = [
 
 var currentDay = 0;
 
+function renderVenues(step, di, si){
+  if(!step.venues||!step.venues.length) return '';
+  var html = '<div class="venues-wrap">';
+  step.venues.forEach(function(v, vi){
+    var hasShops = v.shops && v.shops.length;
+    html += '<div class="venue-row" id="vr-'+v.id+'">';
+    html += '<div class="venue-header" onclick="toggleVenue(\'' + v.id + '\')">';
+    html += '<div class="venue-icon"><span class="ms" style="font-size:16px;color:var(--amber)">storefront</span></div>';
+    html += '<span class="venue-name">'+esc(v.name)+'</span>';
+    if(v.link) html += '<a class="link-btn" style="margin-top:0;padding:3px 8px" href="'+esc(v.link)+'" target="_blank" onclick="event.stopPropagation()"><span class="ms" style="font-size:13px">location_on</span></a>';
+    html += '<button style="background:none;border:none;cursor:pointer;color:var(--sora);padding:2px 4px;display:flex;align-items:center;font-size:11px;gap:2px" onclick="event.stopPropagation();openVmModal('+di+','+si+',\'' + v.id + '\')"><span class="ms" style="font-size:14px">edit</span></button>';
+    html += '<span class="ms venue-toggle" style="font-size:18px">'+(hasShops?'expand_more':'')+'</span>';
+    html += '</div>';
+    if(hasShops){
+      html += '<div class="venue-shops">';
+      v.shops.forEach(function(s){
+        html += '<span class="shop-chip">'+esc(s)+'</span>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  // add venue btn
+  html += '<button class="venue-add-btn" onclick="openVmModal('+di+','+si+',null)"><span class="ms" style="font-size:16px">add</span>新增景點</button>';
+  html += '</div>';
+  return html;
+}
+
+function toggleVenue(vid){
+  var el = document.getElementById('vr-'+vid);
+  if(el) el.classList.toggle('open');
+}
+
 function renderItinerary(){
   var html = '';
   days.forEach(function(day, di){
-    html += '<div id="d'+di+'" class="day-panel'+(di===currentDay?' show':'')+'"><div class="day-header"><div class="dnum">'+day.dayNum+'</div><div class="dinfo"><h2>'+esc(day.title)+'</h2><p>'+esc(day.sub)+'</p></div></div>';
+    html += '<div id="d'+di+'" class="day-panel'+(di===currentDay?' show':'')+'">';
     day.steps.forEach(function(step, si){
       var isLast = si===day.steps.length-1;
       html += '<div class="step"><div class="step-left"><div class="step-num">'+(NUMS[si]||si+1)+'</div>'+(isLast?'':'<div class="step-line"></div>')+'</div>';
-      html += '<div class="step-card '+step.type+'" onclick="openEdit('+di+','+si+')">';
+      html += '<div class="step-card '+step.type+'">';
       html += '<div style="display:flex;align-items:flex-start;gap:6px"><div style="flex:1;min-width:0">';
       html += '<div class="sc-head"><span class="sc-title">'+esc(step.title)+'</span>'+(step.time?'<span class="sc-time">'+esc(step.time)+'</span>':'')+'</div>';
       if(step.notes) html += '<div class="sc-sub">'+esc(step.notes)+'</div>';
       if(step.link) html += '<a class="link-btn" href="'+esc(step.link)+'" target="_blank" onclick="event.stopPropagation()"><span class="ms">location_on</span>'+esc(step.linkLabel)+'</a>';
-      html += '</div><span class="ms edit-icon" style="font-size:14px">edit</span></div></div></div>';
+      html += '</div><button style="background:none;border:none;cursor:pointer;padding:2px;display:flex" onclick="openEdit('+di+','+si+')"><span class="ms edit-icon" style="font-size:16px">edit</span></button>';
+      html += '</div>';
+      // venues block
+      if(step.venues && step.venues.length){
+        html += renderVenues(step, di, si);
+      } else if(step.type==='shop'){
+        html += '<button class="venue-add-btn" onclick="openVmModal('+di+','+si+',null)"><span class="ms" style="font-size:16px">add</span>新增景點</button>';
+      }
+      html += '</div></div>';
     });
     html += '<button class="add-step-btn" onclick="openAddStep('+di+')"><span class="ms" style="font-size:18px">add_circle</span>新增行程</button>';
     html += '</div>';
@@ -893,10 +1049,158 @@ function renderShop(){
   } else { stats.style.display='none'; }
 }
 
+
+/* ============================================================
+   VENUE MODAL
+   ============================================================ */
+var vmDay=-1, vmStep=-1, vmVenueId=null, vmTempShops=[];
+
+function openVmModal(di, si, vid){
+  vmDay=di; vmStep=si; vmVenueId=vid;
+  vmTempShops=[];
+  var step=days[di].steps[si];
+  if(!step.venues) step.venues=[];
+  var venue=vid?step.venues.find(function(v){return v.id===vid;}):null;
+  document.getElementById('vmTitle').textContent=venue?'編輯景點':'新增景點';
+  document.getElementById('vmName').value=venue?venue.name:'';
+  document.getElementById('vmLink').value=venue?(venue.link||''):'';
+  vmTempShops=venue?venue.shops.slice():[];
+  document.getElementById('vmDelBtn').style.display=venue?'':'none';
+  document.getElementById('vmShopInput').value='';
+  renderVmShops();
+  document.getElementById('vmModal').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(function(){document.getElementById('vmName').focus();},300);
+}
+
+function closeVmModal(){
+  document.getElementById('vmModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function renderVmShops(){
+  var list=document.getElementById('vmShopList');
+  if(!list) return;
+  list.innerHTML=vmTempShops.map(function(s,i){
+    return '<div class="vm-shop-chip">'+esc(s)+'<button class="vm-shop-del" onclick="vmRemoveShop('+i+')">x</button></div>';
+  }).join('');
+}
+
+function vmAddShop(){
+  var inp=document.getElementById('vmShopInput');
+  var val=inp.value.trim();
+  if(!val) return;
+  vmTempShops.push(val);
+  inp.value='';
+  renderVmShops();
+  inp.focus();
+}
+
+function vmRemoveShop(i){
+  vmTempShops.splice(i,1);
+  renderVmShops();
+}
+
+function saveVmVenue(){
+  var name=document.getElementById('vmName').value.trim();
+  if(!name){alert('請輸入景點名稱');return;}
+  var step=days[vmDay].steps[vmStep];
+  if(!step.venues) step.venues=[];
+  var venue={
+    id:vmVenueId||('v'+Date.now()),
+    name:name,
+    link:document.getElementById('vmLink').value.trim(),
+    shops:vmTempShops.slice()
+  };
+  if(vmVenueId){
+    var idx=step.venues.findIndex(function(v){return v.id===vmVenueId;});
+    if(idx>-1) step.venues[idx]=venue; else step.venues.push(venue);
+  } else {
+    step.venues.push(venue);
+  }
+  closeVmModal();
+  renderItinerary();
+  switchDay(vmDay);
+}
+
+function vmDeleteVenue(){
+  if(!vmVenueId||!confirm('確定刪除此景點？')) return;
+  var step=days[vmDay].steps[vmStep];
+  step.venues=step.venues.filter(function(v){return v.id!==vmVenueId;});
+  closeVmModal();
+  renderItinerary();
+  switchDay(vmDay);
+}
+
 /* ============================================================
    INIT
    ============================================================ */
+
+// ── expose state so Firebase module can read/write ──
+window.days      = days;
+window.ledger    = ledger;
+window.shopItems = shopItems;
+window.renderItinerary = renderItinerary;
+window.renderLedger    = renderLedger;
+window.renderShop      = renderShop;
+
+// ── toast helper ──
+function showSaveToast(msg, isError) {
+  var t = document.getElementById('saveToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = 'save-toast' + (isError ? ' error' : '');
+  void t.offsetWidth;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+// ── manual save (top-bar button) ──
+function manualSave() {
+  var btn = document.getElementById('syncBtn');
+  if (btn) btn.classList.add('syncing');
+  if (window.fbSave) {
+    window.fbSave().finally(function(){
+      if (btn) btn.classList.remove('syncing');
+    });
+  } else {
+    showSaveToast('尚未連接 Firebase，請先設定', true);
+    if (btn) btn.classList.remove('syncing');
+  }
+}
+
+// ── auto-save wrappers: patch save/delete functions ──
+var _origSaveEdit = saveEdit;
+saveEdit = function() { _origSaveEdit(); if(window.fbSave) window.fbSave(); };
+
+var _origDeleteStep = deleteStep;
+deleteStep = function() { _origDeleteStep(); if(window.fbSave) window.fbSave(); };
+
+var _origSaveVmVenue = saveVmVenue;
+saveVmVenue = function() { _origSaveVmVenue(); if(window.fbSave) window.fbSave(); };
+
+var _origVmDeleteVenue = vmDeleteVenue;
+vmDeleteVenue = function() { _origVmDeleteVenue(); if(window.fbSave) window.fbSave(); };
+
+var _origSaveSlItem = saveSlItem;
+saveSlItem = function() { _origSaveSlItem(); if(window.fbSave) window.fbSave(); };
+
+var _origSlDeleteItem = slDeleteItem;
+slDeleteItem = function() { _origSlDeleteItem(); if(window.fbSave) window.fbSave(); };
+
+var _origToggleCheck = toggleCheck;
+toggleCheck = function(id) { _origToggleCheck(id); if(window.fbSave) window.fbSave(); };
+
+var _origAddLedger = addLedger;
+addLedger = function() { _origAddLedger(); /* fbSave called inside renderLedger is enough */ };
+
+var _origDelLedger = delLedger;
+delLedger = function(i) { _origDelLedger(i); if(window.fbSave) window.fbSave(); };
+
+// ── initial render then signal Firebase module ──
 renderItinerary();
+window.dispatchEvent(new Event('appReady'));
 </script>
 
 <!-- LIGHTBOX -->
@@ -952,5 +1256,37 @@ renderItinerary();
   </div>
 </div>
 
+
+<!-- VENUE MODAL -->
+<div class="vm-overlay" id="vmModal" onclick="if(event.target===this)closeVmModal()">
+  <div class="vm-sheet">
+    <div class="vm-handle"></div>
+    <div class="vm-title" id="vmTitle">新增景點</div>
+    <div class="vm-field">
+      <div class="vm-field-label">景點名稱</div>
+      <input id="vmName" type="text" placeholder="例：太陽城">
+    </div>
+    <div class="vm-field">
+      <div class="vm-field-label">地圖連結（選填）</div>
+      <input id="vmLink" type="url" placeholder="https://maps.app.goo.gl/…">
+    </div>
+    <div class="vm-shops-wrap">
+      <div class="vm-shops-label">店家 / 樓層明細</div>
+      <div class="vm-shop-list" id="vmShopList"></div>
+      <div class="vm-shop-add-row">
+        <input id="vmShopInput" type="text" placeholder="例：吉卜力 B1F" onkeydown="if(event.key==='Enter'){event.preventDefault();vmAddShop()}">
+        <button class="vm-shop-add-btn" onclick="vmAddShop()"><span class="ms" style="font-size:18px">add</span></button>
+      </div>
+    </div>
+    <div class="vm-actions">
+      <button class="vm-btn-cancel" onclick="closeVmModal()">取消</button>
+      <button class="vm-btn-del" id="vmDelBtn" onclick="vmDeleteVenue()" style="display:none"><span class="ms" style="font-size:18px">delete</span></button>
+      <button class="vm-btn-save" onclick="saveVmVenue()">儲存</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="save-toast" id="saveToast"></div>
 </body>
 </html>
