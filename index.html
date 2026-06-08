@@ -278,6 +278,34 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .sync-btn:hover{color:var(--ink)}
 .sync-btn.syncing .ms{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── ACCOUNT ── */
+.acct-overlay{position:fixed;inset:0;background:rgba(28,25,23,0.5);z-index:800;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.22s}
+.acct-overlay.open{opacity:1;pointer-events:all}
+.acct-sheet{background:var(--bg);border-radius:22px 22px 0 0;padding:22px 20px 44px;width:100%;max-width:480px;transform:translateY(50px);transition:transform 0.28s cubic-bezier(0.32,0.72,0,1)}
+.acct-overlay.open .acct-sheet{transform:translateY(0)}
+.acct-handle{width:36px;height:4px;background:var(--border-m);border-radius:2px;margin:0 auto 20px}
+.acct-title{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:400;color:var(--ink);margin-bottom:6px}
+.acct-sub{font-size:12px;color:var(--ink-t);margin-bottom:20px;line-height:1.6}
+.acct-field{margin-bottom:12px}
+.acct-field label{display:block;font-size:11px;color:var(--ink-t);margin-bottom:4px;letter-spacing:0.04em}
+.acct-field input{width:100%;border:0.5px solid var(--border);border-radius:9px;padding:11px 14px;font-size:14px;font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg-s);outline:none;transition:border-color 0.15s}
+.acct-field input:focus{border-color:var(--rose);background:var(--bg)}
+.acct-btn{width:100%;background:var(--ink);color:white;border:none;border-radius:11px;padding:14px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;margin-top:4px;transition:background 0.15s}
+.acct-btn:active{background:var(--ink-s)}
+.acct-error{font-size:12px;color:var(--rose);margin-top:8px;min-height:16px;text-align:center}
+.acct-divider{height:0.5px;background:var(--border);margin:18px 0;position:relative}
+.acct-divider span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--bg);padding:0 10px;font-size:11px;color:var(--ink-t)}
+.acct-reg-btn{width:100%;background:var(--bg-s);color:var(--ink-s);border:0.5px solid var(--border);border-radius:11px;padding:13px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
+
+/* top-bar avatar */
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--rose-l);border:1.5px solid var(--rose-m);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--rose);cursor:pointer;letter-spacing:0;flex-shrink:0;font-family:'Noto Sans JP',sans-serif}
+.user-avatar.guest{background:var(--bg-s);border-color:var(--border-m);color:var(--ink-t)}
+
+/* user panel (logged-in sheet) */
+.user-panel-name{font-family:'Noto Serif JP',serif;font-size:22px;font-weight:300;color:var(--ink);margin-bottom:4px}
+.user-panel-label{font-size:11px;color:var(--ink-t);margin-bottom:24px}
+.user-logout-btn{width:100%;background:var(--rose-l);color:var(--rose-d);border:0.5px solid var(--rose-m);border-radius:11px;padding:13px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
 </style>
   <!-- Firebase SDK -->
   <script type="module">
@@ -295,61 +323,118 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
-    const REF = doc(db, 'tabi', 'data');
 
-    // ── 儲存：供主 script 呼叫 ──
-    window.fbSave = async function() {
+    // ── 文件路徑：行程共用，私人資料依帳號分開 ──
+    const SHARED_REF  = () => doc(db, 'tabi', 'shared');
+    const PRIVATE_REF = () => {
+      const u = window.currentUser;
+      if (!u) return null;
+      return doc(db, 'users', u.name, 'private', 'data');
+    };
+
+    // ── 儲存共用（行程）──
+    window.fbSaveShared = async function() {
       try {
-        const payload = JSON.parse(JSON.stringify({
-          days:      window.days      || [],
-          ledger:    window.ledger    || [],
-          shopItems: window.shopItems || [],
-          savedAt:   new Date().toISOString()
-        }));
-        await setDoc(REF, payload);
-        if (window.showSaveToast) window.showSaveToast('已同步到雲端 ☁');
+        const payload = JSON.parse(JSON.stringify({ days: window.days || [], savedAt: new Date().toISOString() }));
+        await setDoc(SHARED_REF(), payload);
+        if (window.showSaveToast) window.showSaveToast('行程已同步 ☁');
       } catch(e) {
-        const msg = e && e.code ? e.code : (e && e.message ? e.message : String(e));
-        console.error('fbSave error', e);
+        const msg = e && e.code ? e.code : String(e);
         if (window.showSaveToast) window.showSaveToast('同步失敗：' + msg, true);
       }
     };
 
-    // ── 載入：Firebase module 自己輪詢等主 script 就緒 ──
-    async function fbLoad() {
+    // ── 儲存私人（記帳 + 購買清單）──
+    window.fbSavePrivate = async function() {
+      if (!window.currentUser) return;
       try {
-        const snap = await getDoc(REF);
+        const payload = JSON.parse(JSON.stringify({
+          ledger: window.ledger || [], shopItems: window.shopItems || [], savedAt: new Date().toISOString()
+        }));
+        await setDoc(PRIVATE_REF(), payload);
+        if (window.showSaveToast) window.showSaveToast('已同步到雲端 ☁');
+      } catch(e) {
+        const msg = e && e.code ? e.code : String(e);
+        if (window.showSaveToast) window.showSaveToast('同步失敗：' + msg, true);
+      }
+    };
+
+    // ── 相容舊呼叫 fbSave → 同時存兩邊 ──
+    window.fbSave = async function() {
+      await window.fbSaveShared();
+      await window.fbSavePrivate();
+    };
+
+    // ── 載入共用 ──
+    async function loadShared() {
+      try {
+        const snap = await getDoc(SHARED_REF());
         if (snap.exists()) {
           const d = snap.data();
-          if (window.setFirebaseData) {
-            window.setFirebaseData(d);
-            if (window.showSaveToast) window.showSaveToast('資料已從雲端載入 ✓');
+          if (Array.isArray(d.days) && d.days.length && window.days) {
+            window.days.splice(0, window.days.length, ...d.days);
           }
-        } else {
-          // 第一次使用，把本地預設資料推上去
-          window.fbSave();
         }
-      } catch(e) {
-        const msg = e && e.code ? e.code : (e && e.message ? e.message : String(e));
-        console.warn('fbLoad error', e);
-        if (window.showSaveToast) window.showSaveToast('載入失敗：' + msg, true);
-      }
-      // 重新渲染
-      if (window.renderItinerary) window.renderItinerary();
-      if (window.renderLedger)    window.renderLedger();
-      if (window.renderShop)      window.renderShop();
+      } catch(e) { console.warn('loadShared error', e); }
     }
 
-    // ── 等主 script 的 setFirebaseData 準備好再載入 ──
-    // module 是非同步載入，不能靠事件，改用輪詢確保時序正確
+    // ── 載入私人 ──
+    window.fbLoadPrivate = async function() {
+      if (!window.currentUser) return;
+      try {
+        const snap = await getDoc(PRIVATE_REF());
+        if (snap.exists()) {
+          const d = snap.data();
+          if (Array.isArray(d.ledger)    && window.ledger)    window.ledger.splice(0,    window.ledger.length,    ...d.ledger);
+          if (Array.isArray(d.shopItems) && window.shopItems) window.shopItems.splice(0, window.shopItems.length, ...d.shopItems);
+        } else {
+          // 新帳號，初始化空資料
+          window.fbSavePrivate();
+        }
+      } catch(e) { console.warn('fbLoadPrivate error', e); }
+      if (window.renderLedger) window.renderLedger();
+      if (window.renderShop)   window.renderShop();
+    };
+
+    // ── 完整載入（共用 + 私人） ──
+    async function fbLoadAll() {
+      await loadShared();
+      if (window.renderItinerary) window.renderItinerary();
+      if (window.currentUser) {
+        await window.fbLoadPrivate();
+      } else {
+        // 清空私人資料直到登入
+        if (window.ledger)    window.ledger.splice(0);
+        if (window.shopItems) window.shopItems.splice(0);
+        if (window.renderLedger) window.renderLedger();
+        if (window.renderShop)   window.renderShop();
+      }
+      if (window.showSaveToast) window.showSaveToast('資料已載入 ✓');
+    }
+
+    // ── 輪詢等主 script 就緒 ──
     function waitAndLoad() {
       if (typeof window.setFirebaseData === 'function') {
-        fbLoad();
+        fbLoadAll();
       } else {
         setTimeout(waitAndLoad, 50);
       }
     }
     waitAndLoad();
+
+    // ── 登入後重新載入私人資料 ──
+    window.fbOnLogin = function() { fbLoadAll(); };
+
+    // ── 帳號 profile CRUD ──
+    window.fbGetProfile = async function(name) {
+      const ref = doc(db, 'users', name, 'profile', 'info');
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data() : null;
+    };
+    window.fbSetProfile = async function(name, data) {
+      const ref = doc(db, 'users', name, 'profile', 'info');
+      await setDoc(ref, data);
+    };
   </script>
 </head>
 <body>
@@ -368,7 +453,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
   <!-- TOP BAR -->
   <div class="top-bar">
     <div class="logo">獨旅 in <span>TOKYO</span></div>
-    <button class="sync-btn" id="syncBtn" onclick="manualSave()" title="同步到雲端"><span class="ms" style="font-size:18px">cloud_sync</span></button>
+    <div style="display:flex;align-items:center;gap:8px"><button class="sync-btn" id="syncBtn" onclick="manualSave()" title="同步到雲端"><span class="ms" style="font-size:18px">cloud_sync</span></button><div id="userAvatar" class="user-avatar guest" onclick="openAcctSheet()" title="帳號">?</div></div>
     <div class="trip-meta">日本 2026<br>06/18 – 06/23</div>
   </div>
 
@@ -1147,6 +1232,146 @@ function vmDeleteVenue(){
   switchDay(vmDay);
 }
 
+
+/* ============================================================
+   ACCOUNT — 帳號系統
+   Users stored in Firestore: users/{name}/profile = { pwHash }
+   Private data: users/{name}/private/data
+   Session stored in localStorage
+   ============================================================ */
+
+window.currentUser = null;   // { name } or null
+
+// ── simple hash (not cryptographic, just obfuscation) ──
+function simpleHash(str) {
+  var h = 0;
+  for (var i = 0; i < str.length; i++) {
+    h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  }
+  return h.toString(16);
+}
+
+function openAcctSheet() {
+  var u = window.currentUser;
+  showLoginView();
+  if (u) {
+    document.getElementById('acctUserName').textContent = u.name;
+    document.getElementById('acctLoginView').style.display = 'none';
+    document.getElementById('acctRegView').style.display   = 'none';
+    document.getElementById('acctUserView').style.display  = '';
+  }
+  document.getElementById('acctOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAcctSheet() {
+  document.getElementById('acctOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function showLoginView() {
+  document.getElementById('acctLoginView').style.display = '';
+  document.getElementById('acctRegView').style.display   = 'none';
+  document.getElementById('acctUserView').style.display  = 'none';
+  document.getElementById('acctError').textContent = '';
+}
+
+function showRegView() {
+  document.getElementById('acctLoginView').style.display = 'none';
+  document.getElementById('acctRegView').style.display   = '';
+  document.getElementById('acctUserView').style.display  = 'none';
+  document.getElementById('regError').textContent = '';
+  setTimeout(function(){ document.getElementById('regNameInput').focus(); }, 200);
+}
+
+function updateAvatar(user) {
+  var av = document.getElementById('userAvatar');
+  if (!av) return;
+  if (user) {
+    av.textContent = user.name.charAt(0).toUpperCase();
+    av.className = 'user-avatar';
+  } else {
+    av.textContent = '?';
+    av.className = 'user-avatar guest';
+  }
+}
+
+async function doLogin() {
+  var name = document.getElementById('acctNameInput').value.trim();
+  var pw   = document.getElementById('acctPwInput').value;
+  var err  = document.getElementById('acctError');
+  err.textContent = '';
+  if (!name || !pw) { err.textContent = '請填寫名字和密碼'; return; }
+
+  // fetch profile from Firestore via fbGetProfile
+  try {
+    var profile = await window.fbGetProfile(name);
+    if (!profile) { err.textContent = '帳號不存在，請先建立帳號'; return; }
+    if (profile.pwHash !== simpleHash(pw)) { err.textContent = '密碼錯誤'; return; }
+    // success
+    window.currentUser = { name: name };
+    localStorage.setItem('tabiUser', JSON.stringify(window.currentUser));
+    updateAvatar(window.currentUser);
+    closeAcctSheet();
+    // clear & reload private data
+    ledger.splice(0);
+    shopItems.splice(0);
+    if (window.fbOnLogin) window.fbOnLogin();
+    window.showSaveToast('歡迎回來，' + name + ' ✓');
+  } catch(e) {
+    err.textContent = '登入失敗：' + (e.code || e.message || String(e));
+  }
+}
+
+async function doRegister() {
+  var name = document.getElementById('regNameInput').value.trim();
+  var pw   = document.getElementById('regPwInput').value;
+  var err  = document.getElementById('regError');
+  err.textContent = '';
+  if (!name || !pw) { err.textContent = '請填寫名字和密碼'; return; }
+  if (pw.length < 3) { err.textContent = '密碼至少 3 個字元'; return; }
+  if (!/^[a-zA-Z0-9一-龥_-]+$/.test(name)) { err.textContent = '名字只能包含中英文、數字、_ 或 -'; return; }
+
+  try {
+    var existing = await window.fbGetProfile(name);
+    if (existing) { err.textContent = '此名字已被使用，請換一個'; return; }
+    await window.fbSetProfile(name, { pwHash: simpleHash(pw), createdAt: new Date().toISOString() });
+    // auto login
+    window.currentUser = { name: name };
+    localStorage.setItem('tabiUser', JSON.stringify(window.currentUser));
+    updateAvatar(window.currentUser);
+    closeAcctSheet();
+    if (window.fbSavePrivate) window.fbSavePrivate();
+    window.showSaveToast('帳號建立成功！歡迎 ' + name + ' ✓');
+  } catch(e) {
+    err.textContent = '建立失敗：' + (e.code || e.message || String(e));
+  }
+}
+
+function doLogout() {
+  window.currentUser = null;
+  localStorage.removeItem('tabiUser');
+  updateAvatar(null);
+  // clear private data from screen
+  ledger.splice(0);
+  shopItems.splice(0);
+  renderLedger();
+  renderShop();
+  closeAcctSheet();
+  window.showSaveToast('已登出');
+}
+
+// ── restore session from localStorage ──
+(function restoreSession() {
+  try {
+    var saved = localStorage.getItem('tabiUser');
+    if (saved) {
+      window.currentUser = JSON.parse(saved);
+      updateAvatar(window.currentUser);
+    }
+  } catch(e) {}
+})();
+
 /* ============================================================
    INIT
    ============================================================ */
@@ -1199,33 +1424,41 @@ function manualSave() {
   }
 }
 
-// ── auto-save wrappers: patch save/delete functions ──
+// ── auto-save wrappers ──
+// 行程類 → 存共用
 var _origSaveEdit = saveEdit;
-saveEdit = function() { _origSaveEdit(); if(window.fbSave) window.fbSave(); };
+saveEdit = function() { _origSaveEdit(); if(window.fbSaveShared) window.fbSaveShared(); };
 
 var _origDeleteStep = deleteStep;
-deleteStep = function() { _origDeleteStep(); if(window.fbSave) window.fbSave(); };
+deleteStep = function() { _origDeleteStep(); if(window.fbSaveShared) window.fbSaveShared(); };
 
 var _origSaveVmVenue = saveVmVenue;
-saveVmVenue = function() { _origSaveVmVenue(); if(window.fbSave) window.fbSave(); };
+saveVmVenue = function() { _origSaveVmVenue(); if(window.fbSaveShared) window.fbSaveShared(); };
 
 var _origVmDeleteVenue = vmDeleteVenue;
-vmDeleteVenue = function() { _origVmDeleteVenue(); if(window.fbSave) window.fbSave(); };
+vmDeleteVenue = function() { _origVmDeleteVenue(); if(window.fbSaveShared) window.fbSaveShared(); };
 
+// 私人類 → 存個人（需登入）
 var _origSaveSlItem = saveSlItem;
-saveSlItem = function() { _origSaveSlItem(); if(window.fbSave) window.fbSave(); };
+saveSlItem = function() {
+  if(!window.currentUser){ window.showSaveToast('請先登入才能使用購買清單','error'); return; }
+  _origSaveSlItem(); if(window.fbSavePrivate) window.fbSavePrivate();
+};
 
 var _origSlDeleteItem = slDeleteItem;
-slDeleteItem = function() { _origSlDeleteItem(); if(window.fbSave) window.fbSave(); };
+slDeleteItem = function() { _origSlDeleteItem(); if(window.fbSavePrivate) window.fbSavePrivate(); };
 
 var _origToggleCheck = toggleCheck;
-toggleCheck = function(id) { _origToggleCheck(id); if(window.fbSave) window.fbSave(); };
+toggleCheck = function(id) { _origToggleCheck(id); if(window.fbSavePrivate) window.fbSavePrivate(); };
 
 var _origAddLedger = addLedger;
-addLedger = function() { _origAddLedger(); /* fbSave called inside renderLedger is enough */ };
+addLedger = function() {
+  if(!window.currentUser){ window.showSaveToast('請先登入才能使用記帳','error'); return; }
+  _origAddLedger();
+};
 
 var _origDelLedger = delLedger;
-delLedger = function(i) { _origDelLedger(i); if(window.fbSave) window.fbSave(); };
+delLedger = function(i) { _origDelLedger(i); if(window.fbSavePrivate) window.fbSavePrivate(); };
 
 // ── initial render ──
 renderItinerary();
@@ -1316,5 +1549,54 @@ renderItinerary();
 
 
 <div class="save-toast" id="saveToast"></div>
+
+<!-- ACCOUNT SHEET -->
+<div class="acct-overlay" id="acctOverlay" onclick="if(event.target===this)closeAcctSheet()">
+  <div class="acct-sheet" id="acctSheet">
+    <div class="acct-handle"></div>
+    <!-- Login view -->
+    <div id="acctLoginView">
+      <div class="acct-title">登入帳號</div>
+      <div class="acct-sub">購買清單與換算記帳是私人的，<br>登入後才能查看與同步你的資料。</div>
+      <div class="acct-field">
+        <label>名字</label>
+        <input id="acctNameInput" type="text" placeholder="輸入你的名字" autocomplete="off">
+      </div>
+      <div class="acct-field">
+        <label>密碼</label>
+        <input id="acctPwInput" type="password" placeholder="輸入密碼" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="acct-error" id="acctError"></div>
+      <button class="acct-btn" onclick="doLogin()">登入</button>
+      <div class="acct-divider"><span>還沒有帳號？</span></div>
+      <button class="acct-reg-btn" onclick="showRegView()">建立新帳號</button>
+    </div>
+    <!-- Register view -->
+    <div id="acctRegView" style="display:none">
+      <div class="acct-title">建立帳號</div>
+      <div class="acct-sub">設定你的名字和密碼，<br>資料將與其他人完全隔離。</div>
+      <div class="acct-field">
+        <label>名字（作為帳號 ID）</label>
+        <input id="regNameInput" type="text" placeholder="例：Jhen" autocomplete="off">
+      </div>
+      <div class="acct-field">
+        <label>密碼</label>
+        <input id="regPwInput" type="password" placeholder="自訂密碼" onkeydown="if(event.key==='Enter')doRegister()">
+      </div>
+      <div class="acct-error" id="regError"></div>
+      <button class="acct-btn" onclick="doRegister()">建立並登入</button>
+      <div class="acct-divider"><span>已有帳號？</span></div>
+      <button class="acct-reg-btn" onclick="showLoginView()">返回登入</button>
+    </div>
+    <!-- Logged-in view -->
+    <div id="acctUserView" style="display:none">
+      <div class="acct-handle" style="margin-top:-8px"></div>
+      <div class="user-panel-name" id="acctUserName"></div>
+      <div class="user-panel-label">已登入 · 購買清單與記帳為私人</div>
+      <button class="user-logout-btn" onclick="doLogout()">登出</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
