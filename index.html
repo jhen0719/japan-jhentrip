@@ -108,9 +108,18 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .top-bar-back{background:none;border:none;cursor:pointer;color:var(--ink-s);padding:4px;display:flex;border-radius:8px}
 
 /* TRIP LIST PAGE */
-.trips-header{padding:20px 16px 12px;flex-shrink:0}
-.trips-header h1{font-family:'Noto Serif JP',serif;font-size:22px;font-weight:300;color:var(--ink)}
-.trips-header p{font-size:12px;color:var(--ink-t);margin-top:3px}
+.trips-header{padding:16px 16px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:.5px solid var(--border);flex-shrink:0}
+.trips-header h1{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:300;color:var(--ink)}
+.trips-header p{font-size:11px;color:var(--ink-t);margin-top:2px}
+.trips-header-actions{display:flex;align-items:center;gap:6px}
+.trips-fab{background:var(--ink);color:white;border:none;border-radius:20px;padding:8px 14px;font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:background .15s}
+.trips-fab:active{background:var(--ink-s)}
+.trips-join-btn{background:var(--bg-s);color:var(--ink-s);border:.5px solid var(--border-m);border-radius:20px;padding:8px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:background .15s}
+.trips-join-btn:active{background:var(--bg-m)}
+/* join code drawer */
+.join-drawer{max-height:0;overflow:hidden;transition:max-height .28s cubic-bezier(.32,.72,0,1)}
+.join-drawer.open{max-height:80px}
+.join-drawer-inner{display:flex;align-items:center;gap:8px;padding:10px 14px 12px}
 .trip-card-list{padding:0 14px 20px;display:flex;flex-direction:column;gap:10px}
 .trip-card{background:var(--bg);border:.5px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:box-shadow .15s}
 .trip-card:active{box-shadow:0 2px 12px rgba(28,25,23,.1)}
@@ -380,19 +389,29 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
     <!-- page: trips list -->
     <div id="pageTrips" class="tab-page show">
       <div class="trips-header">
-        <h1 id="tripsGreeting">我的旅遊</h1>
-        <p id="tripsSubtitle">點選旅遊進入規劃</p>
+        <div>
+          <h1 id="tripsGreeting">我的旅遊</h1>
+          <p id="tripsSubtitle">點選旅遊進入規劃</p>
+        </div>
+        <div class="trips-header-actions">
+          <button class="trips-join-btn" onclick="toggleJoinDrawer()">
+            <span class="ms" style="font-size:16px">group_add</span>加入
+          </button>
+          <button class="trips-fab" onclick="openNewTripModal()">
+            <span class="ms" style="font-size:18px">add</span>建立旅遊
+          </button>
+        </div>
+      </div>
+      <!-- join code drawer (slides down under header) -->
+      <div class="join-drawer" id="joinDrawer">
+        <div class="join-drawer-inner">
+          <input id="joinCodeInput" class="trip-join-input" type="text" placeholder="輸入 6 碼旅遊代碼…" maxlength="6" style="text-transform:uppercase;flex:1;border:.5px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;background:var(--bg-s);color:var(--ink);outline:none" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinTrip()">
+          <button class="trip-join-btn" onclick="joinTrip()" style="background:var(--ink);color:white;border:none">確認加入</button>
+        </div>
       </div>
       <div class="page-scroll" style="padding:0">
         <div class="trip-card-list" id="tripCardList">
-          <div class="empty-state"><span class="ms">flight_takeoff</span><p>還沒有旅遊計畫<br>點下方「建立旅遊」開始！</p></div>
-        </div>
-        <button class="trip-add-btn" onclick="openNewTripModal()">
-          <span class="ms" style="font-size:20px">add_circle</span>建立新旅遊
-        </button>
-        <div class="trip-join-row">
-          <input id="joinCodeInput" class="trip-join-input" type="text" placeholder="輸入旅遊代碼加入…" maxlength="6" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
-          <button class="trip-join-btn" onclick="joinTrip()">加入</button>
+          <div class="empty-state"><span class="ms">flight_takeoff</span><p>還沒有旅遊計畫<br>點右上角「建立旅遊」開始！</p></div>
         </div>
       </div>
     </div>
@@ -1155,6 +1174,13 @@ function renderShop(){ var unc=shopItems.filter(function(x){return !x.checked;})
 /* ============================================================
    INIT
    ============================================================ */
+
+
+function toggleJoinDrawer(){
+  var d = document.getElementById('joinDrawer');
+  var isOpen = d.classList.toggle('open');
+  if(isOpen) setTimeout(function(){ document.getElementById('joinCodeInput').focus(); }, 280);
+}
 
 /* ============================================================
    MEMBER PANEL
