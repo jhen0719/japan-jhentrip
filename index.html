@@ -68,6 +68,8 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 
 /* APP SHELL */
 .app{max-width:480px;margin:0 auto;background:var(--bg);height:100vh;display:flex;flex-direction:column;opacity:0;transition:opacity .9s;position:fixed;top:0;left:0;right:0;box-shadow:0 0 40px rgba(28,25,23,.08)}
+#mainContent{display:none;flex:1;flex-direction:column;min-height:0}
+#mainContent.show{display:flex}
 .app.visible{opacity:1}
 
 /* SPLASH */
@@ -420,7 +422,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
   </div>
 
   <!-- ══ MAIN (after login) ══ -->
-  <div id="mainContent" style="display:none;flex:1;flex-direction:column;min-height:0;display:none">
+  <div id="mainContent" style="display:none;flex:1;flex-direction:column;min-height:0">
 
     <!-- page: trips list -->
     <div id="pageTrips" class="tab-page show">
@@ -768,6 +770,9 @@ setTimeout(function(){
     app.classList.add('visible');
     var splash = document.getElementById('splash');
     if(splash){ splash.classList.add('fade-out'); setTimeout(function(){ splash.style.display='none'; },900); }
+    // show auth screen as fallback if still nothing visible
+    var auth = document.getElementById('authScreen');
+    if(auth && !auth.classList.contains('show')) auth.classList.add('show');
   }
 }, 5000);
 
@@ -779,18 +784,14 @@ window.onAuthReady = function(user){
 
   if(user){
     document.getElementById('authScreen').className = 'auth-screen';
-    var mc = document.getElementById('mainContent');
-    mc.style.display = 'flex';
-    mc.style.flexDirection = 'column';
-    mc.style.flex = '1';
-    mc.style.minHeight = '0';
+    document.getElementById('mainContent').classList.add('show');
     // update account page
     document.getElementById('acctName').textContent  = user.displayName || user.email;
     document.getElementById('acctEmail').textContent = user.email;
     loadTripList();
   } else {
     document.getElementById('authScreen').className = 'auth-screen show';
-    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('mainContent').classList.remove('show');
     exitTrip(true);
   }
 };
