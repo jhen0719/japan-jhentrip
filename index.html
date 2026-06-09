@@ -359,6 +359,8 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .member-title span{font-size:11px;color:var(--ink-t);font-family:'Noto Sans JP',sans-serif;font-weight:300}
 .member-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid var(--border)}
 .member-row:last-child{border-bottom:none}
+.member-action-btn{background:var(--rose-l);color:var(--rose-d);border:.5px solid var(--rose-m);border-radius:8px;padding:6px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:3px;flex-shrink:0}
+.member-leave-btn{background:var(--bg-s);color:var(--ink-s);border:.5px solid var(--border-m);border-radius:8px;padding:6px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:3px;flex-shrink:0}
 .member-avatar{width:36px;height:36px;border-radius:50%;background:var(--rose-l);border:1px solid var(--rose-m);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--rose);flex-shrink:0}
 .member-info{flex:1;min-width:0}
 .member-name{font-size:14px;color:var(--ink);font-weight:500}
@@ -1237,12 +1239,21 @@ function openMemberPanel(){
   var names = trip.memberNames || {};
   var members = trip.members || [];
   var uid = window._currentUser ? window._currentUser.uid : null;
+  var iAmCreator = trip.createdBy === uid;
   document.getElementById('memberCount').textContent = members.length + ' 人';
   document.getElementById('memberList').innerHTML = members.map(function(mid){
     var name = names[mid] || mid;
     var initial = name.charAt(0).toUpperCase();
     var isYou = mid === uid;
     var isCreator = mid === trip.createdBy;
+    var actionBtn = '';
+    if(iAmCreator && !isCreator){
+      // 建立者可以移除其他成員（不能移除自己）
+      actionBtn = '<button class="member-action-btn" onclick="removeMember(''+mid+'')"><span class="ms" style="font-size:14px">person_remove</span>移除</button>';
+    } else if(isYou && !isCreator){
+      // 成員可以自己離開（建立者不能離開）
+      actionBtn = '<button class="member-leave-btn" onclick="leaveTrip()"><span class="ms" style="font-size:14px">logout</span>離開</button>';
+    }
     return '<div class="member-row">' +
       '<div class="member-avatar">'+esc(initial)+'</div>' +
       '<div class="member-info">' +
@@ -1251,6 +1262,7 @@ function openMemberPanel(){
         '</div>' +
         '<div class="member-badge">'+(isCreator?'建立者':'成員')+'</div>' +
       '</div>' +
+      actionBtn +
     '</div>';
   }).join('');
   document.getElementById('memberOverlay').classList.add('open');
@@ -1258,6 +1270,40 @@ function openMemberPanel(){
 
 function closeMemberPanel(){
   document.getElementById('memberOverlay').classList.remove('open');
+}
+
+async function removeMember(targetUid){
+  var trip = myTrips.find(function(t){ return t.id === currentTripId; });
+  if(!trip) return;
+  var name = (trip.memberNames||{})[targetUid] || targetUid;
+  if(!confirm('確定要移除成員「'+name+'」？')) return;
+  var fb = window._fb;
+  try{
+    var newMembers = (trip.members||[]).filter(function(m){ return m !== targetUid; });
+    var update = { members: newMembers };
+    update['memberNames.'+targetUid] = fb.deleteField ? fb.deleteField() : null;
+    await fb.updateDoc(fb.doc(fb.db,'trips',currentTripId), { members: newMembers });
+    showSaveToast('已移除：'+name);
+    closeMemberPanel();
+    await loadTripList();
+    openMemberPanel();
+  } catch(e){ showSaveToast('移除失敗：'+(e.code||e.message), true); }
+}
+
+async function leaveTrip(){
+  var trip = myTrips.find(function(t){ return t.id === currentTripId; });
+  if(!trip) return;
+  if(!confirm('確定要離開「'+trip.name+'」旅遊？離開後需重新輸入代碼才能加入。')) return;
+  var fb = window._fb;
+  var uid = window._currentUser.uid;
+  try{
+    var newMembers = (trip.members||[]).filter(function(m){ return m !== uid; });
+    await fb.updateDoc(fb.doc(fb.db,'trips',currentTripId), { members: newMembers });
+    showSaveToast('已離開旅遊');
+    closeMemberPanel();
+    exitTrip();
+    await loadTripList();
+  } catch(e){ showSaveToast('操作失敗：'+(e.code||e.message), true); }
 }
 
 // onAuthReady is called by Firebase module once auth state is known.
