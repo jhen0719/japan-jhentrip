@@ -318,6 +318,24 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .empty-state{text-align:center;padding:48px 24px;color:var(--ink-t)}
 .empty-state .ms{font-size:48px;margin-bottom:12px;display:block}
 .empty-state p{font-size:13px;line-height:1.8}
+
+/* ── MEMBER PANEL ── */
+.member-btn{background:none;border:none;cursor:pointer;color:var(--ink-t);padding:4px 6px;display:flex;align-items:center;border-radius:8px;transition:color .15s}
+.member-btn:hover{color:var(--ink)}
+.member-overlay{position:fixed;inset:0;background:rgba(28,25,23,.4);z-index:550;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
+.member-overlay.open{opacity:1;pointer-events:all}
+.member-sheet{background:var(--bg);border-radius:22px 22px 0 0;padding:20px 18px 40px;width:100%;max-width:480px;transform:translateY(40px);transition:transform .28s cubic-bezier(.32,.72,0,1)}
+.member-overlay.open .member-sheet{transform:translateY(0)}
+.member-handle{width:36px;height:4px;background:var(--border-m);border-radius:2px;margin:0 auto 18px}
+.member-title{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.member-title span{font-size:11px;color:var(--ink-t);font-family:'Noto Sans JP',sans-serif;font-weight:300}
+.member-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid var(--border)}
+.member-row:last-child{border-bottom:none}
+.member-avatar{width:36px;height:36px;border-radius:50%;background:var(--rose-l);border:1px solid var(--rose-m);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--rose);flex-shrink:0}
+.member-info{flex:1;min-width:0}
+.member-name{font-size:14px;color:var(--ink);font-weight:500}
+.member-badge{font-size:10px;color:var(--ink-t);margin-top:2px}
+.member-you{font-size:10px;background:var(--rose-l);color:var(--rose);border-radius:10px;padding:2px 7px;border:.5px solid var(--rose-m)}
 </style>
 </head>
 <body>
@@ -384,6 +402,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
       <div class="top-bar">
         <button class="top-bar-back" onclick="exitTrip()"><span class="ms" style="font-size:22px">arrow_back_ios</span></button>
         <div class="top-bar-title" id="tripTitle">旅遊名稱</div>
+        <button class="member-btn" onclick="openMemberPanel()" title="查看成員"><span class="ms" style="font-size:22px">group</span></button>
         <button class="sync-btn" id="syncBtn" onclick="manualSave()"><span class="ms" style="font-size:18px">cloud_sync</span></button>
       </div>
       <div id="tripTabs" style="display:flex;border-bottom:.5px solid var(--border);padding:0;flex-shrink:0">
@@ -600,6 +619,16 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()"><span class="ms" style="font-size:20px;color:white">close</span></button>
   <img id="lightboxImg" src="" alt="">
+</div>
+
+
+<!-- MEMBER PANEL -->
+<div class="member-overlay" id="memberOverlay" onclick="if(event.target===this)closeMemberPanel()">
+  <div class="member-sheet">
+    <div class="member-handle"></div>
+    <div class="member-title">旅遊成員 <span id="memberCount"></span></div>
+    <div id="memberList"></div>
+  </div>
 </div>
 
 <!-- toast -->
@@ -822,7 +851,7 @@ async function createTrip(){
     showSaveToast('旅遊已建立！代碼：'+code);
     await loadTripList();
     openTrip(ref.id);
-  } catch(e){ showSaveToast('建立失敗：'+e.message, true); }
+  } catch(e){ console.error('createTrip error', e); showSaveToast('建立失敗：'+(e.code||e.message||String(e)), true); }
 }
 
 async function joinTrip(){
@@ -844,7 +873,7 @@ async function joinTrip(){
     showSaveToast('已加入：'+data.name);
     await loadTripList();
     openTrip(tripDoc.id);
-  } catch(e){ showSaveToast('加入失敗：'+e.message, true); }
+  } catch(e){ console.error('joinTrip error', e); showSaveToast('加入失敗：'+(e.code||e.message||String(e)), true); }
 }
 
 /* ============================================================
@@ -1126,6 +1155,39 @@ function renderShop(){ var unc=shopItems.filter(function(x){return !x.checked;})
 /* ============================================================
    INIT
    ============================================================ */
+
+/* ============================================================
+   MEMBER PANEL
+   ============================================================ */
+function openMemberPanel(){
+  var trip = myTrips.find(function(t){ return t.id === currentTripId; });
+  if(!trip) return;
+  var names = trip.memberNames || {};
+  var members = trip.members || [];
+  var uid = window._currentUser ? window._currentUser.uid : null;
+  document.getElementById('memberCount').textContent = members.length + ' 人';
+  document.getElementById('memberList').innerHTML = members.map(function(mid){
+    var name = names[mid] || mid;
+    var initial = name.charAt(0).toUpperCase();
+    var isYou = mid === uid;
+    var isCreator = mid === trip.createdBy;
+    return '<div class="member-row">' +
+      '<div class="member-avatar">'+esc(initial)+'</div>' +
+      '<div class="member-info">' +
+        '<div class="member-name" style="display:flex;align-items:center;gap:6px">'+esc(name)+
+          (isYou ? '<span class="member-you">你</span>' : '') +
+        '</div>' +
+        '<div class="member-badge">'+(isCreator?'建立者':'成員')+'</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('memberOverlay').classList.add('open');
+}
+
+function closeMemberPanel(){
+  document.getElementById('memberOverlay').classList.remove('open');
+}
+
 // onAuthReady is called by Firebase module once auth state is known.
 </script>
 </body>
