@@ -34,15 +34,15 @@ window._fb = { db, auth, doc, getDoc, setDoc, collection, addDoc, query, where, 
 // ── auth state ──
 onAuthStateChanged(auth, user => {
   window._currentUser = user || null;
-  if (window.onAuthReady) window.onAuthReady(user);
+  // poll until main script has defined onAuthReady, then call it
+  (function tryNotify(){
+    if (typeof window.onAuthReady === 'function') {
+      window.onAuthReady(user);
+    } else {
+      setTimeout(tryNotify, 30);
+    }
+  })();
 });
-
-// ── poll until app ready ──
-function waitReady() {
-  if (typeof window.onAuthReady === 'function') return; // already set
-  setTimeout(waitReady, 50);
-}
-waitReady();
 </script>
 
 <style>
@@ -677,6 +677,16 @@ function doLogout(){
 /* ============================================================
    AUTH READY CALLBACK
    ============================================================ */
+// Fallback: if onAuthReady not called within 5s, force-show app
+setTimeout(function(){
+  var app = document.getElementById('mainApp');
+  if(app && !app.classList.contains('visible')){
+    app.classList.add('visible');
+    var splash = document.getElementById('splash');
+    if(splash){ splash.classList.add('fade-out'); setTimeout(function(){ splash.style.display='none'; },900); }
+  }
+}, 5000);
+
 window.onAuthReady = function(user){
   var splash = document.getElementById('splash');
   var app    = document.getElementById('mainApp');
@@ -1116,351 +1126,7 @@ function renderShop(){ var unc=shopItems.filter(function(x){return !x.checked;})
 /* ============================================================
    INIT
    ============================================================ */
-// Firebase module sets window.onAuthReady when ready;
-// if auth fires before module loads, re-fire via polling
-(function waitFb(){
-  if(window._fb){ /* module loaded, onAuthStateChanged will call onAuthReady */ }
-  else { setTimeout(waitFb,50); }
-})();
-</script>
-</body>
-</html>.day-tabs{display:flex;gap:6px;padding:14px 16px 12px;overflow-x:auto;scrollbar-width:none;border-bottom:0.5px solid var(--border)}
-.day-tabs::-webkit-scrollbar{display:none}
-.dtab{flex-shrink:0;padding:7px 14px;border-radius:20px;border:0.5px solid var(--border);font-size:12px;cursor:pointer;color:var(--ink-s);background:var(--bg);font-family:'Noto Sans JP',sans-serif;transition:all 0.15s;line-height:1.4}
-.dtab.active{background:var(--ink);color:var(--bg);border-color:transparent}
-
-.day-panel{display:none;padding:16px 16px 60px}
-.day-panel.show{display:block}
-
-.day-header{display:flex;align-items:baseline;gap:10px;padding:4px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:16px}
-.day-header .dnum{font-family:'Noto Serif JP',serif;font-size:30px;font-weight:300;color:var(--sakura);line-height:1}
-.day-header .dinfo h2{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;letter-spacing:0.04em}
-.day-header .dinfo p{font-size:11px;color:var(--ink-t);margin-top:3px}
-
-.step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
-.step-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:32px}
-.step-num{width:26px;height:26px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--ink-s);flex-shrink:0}
-.step-line{width:1px;background:var(--border);flex:1;min-height:16px;margin-top:3px}
-
-.step-card{flex:1;background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:11px 13px;min-width:0}
-.step-card.transport{border-left:2.5px solid #b8cde0;border-radius:0 12px 12px 0}
-.step-card.food{border-left:2.5px solid #e4b0ba;border-radius:0 12px 12px 0}
-.step-card.stay{border-left:2.5px solid #a8c5a0;border-radius:0 12px 12px 0}
-.step-card.shop{border-left:2.5px solid #d4c08a;border-radius:0 12px 12px 0}
-
-.sc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px}
-.sc-title{font-size:13px;font-weight:500;line-height:1.4;color:var(--ink)}
-.sc-time{font-size:11px;color:var(--ink-t);white-space:nowrap;padding-top:1px;flex-shrink:0}
-.sc-sub{font-size:11px;color:var(--ink-s);line-height:1.7}
-
-.tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
-.tag{font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap}
-.tag-transport{background:var(--sora-bg);color:var(--sora)}
-.tag-food{background:var(--sakura-bg);color:var(--sakura)}
-.tag-shop{background:var(--amber-bg);color:var(--amber)}
-.tag-nature{background:var(--matcha-bg);color:var(--matcha)}
-
-.link-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--sora);text-decoration:none;padding:4px 9px;border:0.5px solid #b5d4f4;border-radius:6px;margin-top:7px;cursor:pointer;background:var(--sora-bg)}
-.link-btn i{font-size:12px}
-.link-btn:hover{background:#d5e8f6}
-
-.sub-list{margin-top:7px;padding:8px 10px;background:var(--bg-s);border-radius:8px}
-.sub-list .floor{font-size:11px;font-weight:500;color:var(--amber);margin-top:6px;margin-bottom:2px}
-.sub-list .floor:first-child{margin-top:0}
-.shop-item{font-size:11px;color:var(--ink-s);padding:2px 0;display:flex;align-items:center;gap:5px}
-.shop-item::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--ink-t);flex-shrink:0}
-
-.flight-card{background:var(--bg-s);border-radius:10px;padding:10px 12px;margin-top:7px}
-.flight-row{display:flex;align-items:center;gap:8px}
-.flight-time{font-size:17px;font-weight:500;font-family:'Noto Serif JP',serif;color:var(--ink)}
-.flight-arrow{flex:1;display:flex;align-items:center;gap:4px;color:var(--ink-t);font-size:14px;color:var(--sora)}
-.flight-arrow::before,.flight-arrow::after{content:'';height:0.5px;background:var(--border);flex:1}
-.flight-info{font-size:11px;color:var(--ink-s);margin-top:5px}
-
-.divider{height:0.5px;background:var(--border);margin:10px 0}
-
-.legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:var(--bg-s);font-size:10px;color:var(--ink-s)}
-.legend-item{display:flex;align-items:center;gap:4px}
-.legend-dot{width:8px;height:16px;border-radius:2px;flex-shrink:0}
-</style>
-</head>
-<body>
-<div class="app">
-
-<div class="top-bar">
-  <div class="logo">た<span>び</span>手帳</div>
-  <div class="trip-meta">日本 2025<br>06/18 – 06/23</div>
-</div>
-
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#b8cde0"></div>交通</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#e4b0ba"></div>餐廳</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#a8c5a0"></div>住宿</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#d4c08a"></div>購物景點</div>
-</div>
-
-<div class="day-tabs">
-  <button class="dtab active" onclick="switchDay(0)">Day 1<br><span style="font-size:10px;opacity:.7">06/18</span></button>
-  <button class="dtab" onclick="switchDay(1)">Day 2<br><span style="font-size:10px;opacity:.7">06/20</span></button>
-  <button class="dtab" onclick="switchDay(2)">Day 3<br><span style="font-size:10px;opacity:.7">06/21</span></button>
-  <button class="dtab" onclick="switchDay(3)">Day 4<br><span style="font-size:10px;opacity:.7">06/22</span></button>
-  <button class="dtab" onclick="switchDay(4)">Day 5<br><span style="font-size:10px;opacity:.7">06/23</span></button>
-</div>
-
-<!-- DAY 1 -->
-<div id="d0" class="day-panel show">
-  <div class="day-header">
-    <div class="dnum">01</div>
-    <div class="dinfo"><h2>出發 · 東京抵達</h2><p>桃園 → 成田 → 新宿 → 大塚</p></div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❶</div><div class="step-line"></div></div>
-    <div class="step-card transport">
-      <div class="sc-head"><span class="sc-title">桃園國際機場</span><span class="sc-time">23:00</span></div>
-      <div class="sc-sub">06/18 出發</div>
-      <div class="flight-card">
-        <div class="flight-row">
-          <div><div class="flight-time">02:00</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">桃園</div></div>
-          <div class="flight-arrow"><i class="ti ti-plane"></i></div>
-          <div style="text-align:right"><div class="flight-time">06:30</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">成田</div></div>
-        </div>
-        <div class="flight-info">樂桃航空 · MM620 · 約4.5小時</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❷</div><div class="step-line"></div></div>
-    <div class="step-card transport">
-      <div class="sc-head"><span class="sc-title">成田機場 → 新宿</span><span class="sc-time">06:30</span></div>
-      <div class="sc-sub">N'EX 成田特快 · 約85分鐘</div>
-      <div class="tag-row">
-        <span class="tag tag-transport">07:37</span>
-        <span class="tag tag-transport">08:12</span>
-        <span class="tag tag-transport">08:49</span>
-      </div>
-      <a class="link-btn" href="https://drive.google.com/file/d/1Q8QgRquTQNYSTKiSi4lDa99P1dc2ZGnH/view" target="_blank">
-        <i class="ti ti-ticket"></i>取票教學
-      </a>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❸</div><div class="step-line"></div></div>
-    <div class="step-card transport">
-      <div class="sc-head"><span class="sc-title">新宿 → 大塚</span><span class="sc-time">10:00</span></div>
-      <div class="sc-sub">山手線 · 約15分鐘</div>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❹</div><div class="step-line"></div></div>
-    <div class="step-card stay">
-      <div class="sc-head"><span class="sc-title">先放行李 · 住宿</span><span class="sc-time">10:30</span></div>
-      <div class="tag-row">
-        <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
-        <a class="link-btn" href="https://secure.booking.com/app_link/myreservations.zh-tw.html?stid=325542&bn=5489678961&aid=1244849" target="_blank"><i class="ti ti-external-link"></i>訂單</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❺</div><div class="step-line"></div></div>
-    <div class="step-card food">
-      <div class="sc-head"><span class="sc-title">麵屋武藏 二天</span><span class="sc-time">11:00</span></div>
-      <div class="sc-sub">池袋 · 午餐</div>
-      <a class="link-btn" href="https://maps.app.goo.gl/dSg6YPqbpyRqMTAU6?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❻</div><div class="step-line"></div></div>
-    <div class="step-card shop">
-      <div class="sc-head"><span class="sc-title">池袋逛街</span><span class="sc-time">13:00</span></div>
-      <div class="sc-sub">IT TOWER TOKYO · 三麗鷗 GU UQ</div>
-      <div class="divider"></div>
-      <div style="font-size:12px;font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:8px">
-        太陽城 · 10:00–20:00
-        <a class="link-btn" style="margin-top:0" href="https://maps.app.goo.gl/LTyHDWHe8DoygZXW9?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
-      </div>
-      <div class="sub-list">
-        <div class="floor">Alpa B1F</div>
-        <div class="shop-item">吉卜力</div>
-        <div class="shop-item">3coins</div>
-        <div class="shop-item">MARVEL · Disney</div>
-        <div class="floor">Alpa 1F</div>
-        <div class="shop-item">ABC MART · 無印良品 · Loft</div>
-        <div class="floor">Alpa 2F</div>
-        <div class="shop-item">Kiddy Land · Snoopy · TOP TOY · 蠟筆小新</div>
-        <div class="floor">Alpa 3F</div>
-        <div class="shop-item">扭蛋</div>
-        <div class="floor">Annex B1/1F</div>
-        <div class="shop-item">吉伊卡哇</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❼</div></div>
-    <div class="step-card stay">
-      <div class="sc-title">回住宿</div>
-      <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
-    </div>
-  </div>
-</div>
-
-<!-- DAY 2 -->
-<div id="d1" class="day-panel">
-  <div class="day-header">
-    <div class="dnum">02</div>
-    <div class="dinfo"><h2>橫濱 · 新宿</h2><p>麵包超人博物館 · 逛街購物</p></div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❶</div><div class="step-line"></div></div>
-    <div class="step-card stay">
-      <div class="sc-title">住宿出發</div>
-      <a class="link-btn" href="https://maps.app.goo.gl/ez1dCC3emQaY6gPGA?g_st=ic" target="_blank"><i class="ti ti-map-pin"></i>地圖</a>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❷</div><div class="step-line"></div></div>
-    <div class="step-card transport">
-      <div class="sc-head"><span class="sc-title">前往橫濱</span></div>
-      <div class="sc-sub">山手線 → 池袋 · 湘南新宿線 → 橫濱<br>新高島站 3出口 · ¥715</div>
-      <div class="divider"></div>
-      <div class="sc-head"><span class="sc-title">麵包超人博物館</span></div>
-      <div class="sc-sub">10:00–18:00</div>
-      <div class="tag-row"><span class="tag tag-nature">景點</span></div>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❸</div><div class="step-line"></div></div>
-    <div class="step-card food">
-      <div class="sc-head"><span class="sc-title">午餐 · 油そば</span></div>
-      <div class="sc-sub">橫濱</div>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❹</div></div>
-    <div class="step-card shop">
-      <div class="sc-head"><span class="sc-title">新宿購物</span></div>
-      <div class="sub-list" style="margin-top:6px">
-        <div class="shop-item">Gacha Gacha no Mori 扭蛋</div>
-        <div class="shop-item">Kiddy Land Shinjuku</div>
-        <div class="shop-item">ビックカメラ 新宿東口（GU · UNIQLO · Big Camera）</div>
-        <div class="shop-item">無印良品</div>
-        <div class="shop-item">丸井 4F seria · 5F 駿河屋</div>
-        <div class="shop-item">Hands</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- DAY 3 -->
-<div id="d2" class="day-panel">
-  <div class="day-header">
-    <div class="dnum">03</div>
-    <div class="dinfo"><h2>淺草 · 上野 · 秋葉原</h2><p>傳統文化與現代文化交匯</p></div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❶</div><div class="step-line"></div></div>
-    <div class="step-card food">
-      <div class="sc-head"><span class="sc-title">淺草</span></div>
-      <div class="sub-list" style="margin-top:6px">
-        <div class="shop-item">炸肉餅</div>
-        <div class="shop-item">花月堂</div>
-        <div class="shop-item">炸饅頭</div>
-        <div class="shop-item">三麗鷗</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❷</div><div class="step-line"></div></div>
-    <div class="step-card food">
-      <div class="sc-head"><span class="sc-title">上野</span></div>
-      <div class="sc-sub">買東西逛街</div>
-      <div class="divider"></div>
-      <div class="sc-sub">とんかつ山家 · 炸豬排</div>
-      <div class="tag-row"><span class="tag tag-food">炸豬排</span></div>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❸</div></div>
-    <div class="step-card shop">
-      <div class="sc-title">秋葉原</div>
-      <div class="sc-sub" style="margin-top:4px">電器街 · 動漫周邊</div>
-    </div>
-  </div>
-</div>
-
-<!-- DAY 4 -->
-<div id="d3" class="day-panel">
-  <div class="day-header">
-    <div class="dnum">04</div>
-    <div class="dinfo"><h2>鎌倉一日遊</h2><p>海岸線 · 古寺 · 小鎮散策</p></div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">—</div><div class="step-line"></div></div>
-    <div class="step-card transport">
-      <div class="sc-title">新宿 → 藤澤</div>
-      <a class="link-btn" href="http://xhslink.com/o/2Fu1mUkOO8D" target="_blank"><i class="ti ti-ticket"></i>購票方式</a>
-    </div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">❶</div></div>
-    <div class="step-card shop">
-      <div class="sc-title" style="margin-bottom:8px">鎌倉景點</div>
-      <div class="sub-list">
-        <div class="shop-item">鎌倉高校前</div>
-        <div class="shop-item">七里之濱</div>
-        <div class="shop-item">長谷寺</div>
-        <div class="shop-item">鎌倉大佛</div>
-        <div class="shop-item">小町通</div>
-        <div class="shop-item">鶴岡八幡宮</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- DAY 5 -->
-<div id="d4" class="day-panel">
-  <div class="day-header">
-    <div class="dnum">05</div>
-    <div class="dinfo"><h2>返台</h2><p>06/23 · 長榮航空</p></div>
-  </div>
-
-  <div class="step">
-    <div class="step-left"><div class="step-num">✈</div></div>
-    <div class="step-card transport">
-      <div class="sc-head"><span class="sc-title">長榮航空 BR183</span></div>
-      <div class="flight-card">
-        <div class="flight-row">
-          <div><div class="flight-time">13:25</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">成田</div></div>
-          <div class="flight-arrow"><i class="ti ti-plane"></i></div>
-          <div style="text-align:right"><div class="flight-time">16:00</div><div style="font-size:10px;color:var(--ink-t);margin-top:2px">桃園</div></div>
-        </div>
-        <div class="flight-info">約3.5小時 · 平安抵台！</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-</div>
-<script>
-function switchDay(i){
-  document.querySelectorAll('.day-panel').forEach((p,idx)=>p.classList.toggle('show',idx===i));
-  document.querySelectorAll('.dtab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
-}
+// onAuthReady is called by Firebase module once auth state is known.
 </script>
 </body>
 </html>
