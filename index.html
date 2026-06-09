@@ -1251,20 +1251,34 @@ function toggleJoinDrawer(){
 /* ============================================================
    MEMBER PANEL
    ============================================================ */
-function openMemberPanel(){
-  var trip = myTrips.find(function(t){ return t.id===currentTripId; });
-  if(!trip) return;
-  var names = trip.memberNames||{};
-  var members = trip.members||[];
+async function openMemberPanel(){
+  if(!currentTripId) return;
+  var fb = window._fb;
   var uid = window._currentUser ? window._currentUser.uid : null;
-  var iAmCreator = trip.createdBy===uid;
+  var tripData;
+  try{
+    var snap = await fb.getDoc(fb.doc(fb.db,'trips',currentTripId));
+    if(!snap.exists()) return;
+    tripData = snap.data();
+    // update local cache
+    var cached = myTrips.find(function(t){ return t.id===currentTripId; });
+    if(cached) Object.assign(cached, tripData);
+  } catch(e){
+    // fallback to cached
+    tripData = myTrips.find(function(t){ return t.id===currentTripId; });
+    if(!tripData) return;
+  }
+  var names = tripData.memberNames||{};
+  var members = tripData.members||[];
+  var createdBy = tripData.createdBy||'';
+  var iAmCreator = createdBy===uid;
   window._memberIds = members.slice();
   document.getElementById('memberCount').textContent = members.length+' 人';
   var rows = members.map(function(mid, i){
     var name = names[mid]||mid;
     var initial = name.charAt(0).toUpperCase();
     var isYou = mid===uid;
-    var isCreator = mid===trip.createdBy;
+    var isCreator = mid===createdBy;
     var actionHtml = '';
     if(iAmCreator && !isYou){
       actionHtml = '<button class="member-action-btn" onclick="removeMemberByIdx('+i+')"><span class="ms" style="font-size:14px">person_remove</span>移除</button>';
