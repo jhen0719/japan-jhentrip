@@ -66,19 +66,31 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 /* SPLASH */
 #splash{position:fixed;inset:0;background:var(--bg-m);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .9s}
 #splash.fade-out{opacity:0;pointer-events:none}
-.splash-eyebrow{font-size:12px;letter-spacing:.3em;color:var(--ink-t);opacity:0;transform:translateY(8px);animation:splashIn .8s ease .2s forwards;margin-bottom:10px}
-.splash-logo{font-family:'Noto Serif JP',serif;font-size:54px;font-weight:300;letter-spacing:.14em;color:var(--ink);opacity:0;transform:translateY(14px);animation:splashIn .9s ease .5s forwards;line-height:1}
-.splash-sub{font-family:'Noto Serif JP',serif;font-size:13px;font-weight:300;letter-spacing:.2em;color:var(--rose);margin-top:12px;opacity:0;animation:splashIn .9s ease .9s forwards}
-.splash-bar{width:28px;height:1px;background:var(--rose);margin-top:22px;opacity:0;transform:scaleX(0);animation:barIn .8s ease 1.2s forwards;transform-origin:left}
+.splash-logo-wrap{opacity:0;transform:translateY(16px);animation:splashIn .9s ease .3s forwards;display:flex;flex-direction:column;align-items:center;gap:10px}
+.splash-main-row{display:flex;align-items:baseline;gap:0;line-height:1}
+.splash-jhen{font-family:'Noto Serif JP',serif;font-size:52px;font-weight:300;letter-spacing:.04em;color:var(--ink)}
+.splash-go{font-family:'Noto Serif JP',serif;font-size:52px;font-weight:300;letter-spacing:.04em;color:var(--rose)}
+.splash-haowan{font-size:32px;font-weight:300;color:var(--rose);letter-spacing:.06em;margin-left:8px;font-family:'Noto Sans JP',sans-serif;padding-bottom:4px}
+.splash-sub-row{display:flex;align-items:center;gap:8px;opacity:0;animation:splashIn .8s ease .9s forwards}
+.splash-zh{font-size:13px;color:var(--ink-s);letter-spacing:.18em;font-family:'Noto Sans JP',sans-serif}
+.splash-dot{width:3px;height:3px;border-radius:50%;background:var(--rose);opacity:.6}
+.splash-meaning{font-size:13px;color:var(--rose);letter-spacing:.12em;opacity:.8;font-family:'Noto Sans JP',sans-serif}
+.splash-bar{width:28px;height:1px;background:var(--rose);margin-top:18px;opacity:0;transform:scaleX(0);animation:barIn .8s ease 1.3s forwards;transform-origin:left}
 @keyframes splashIn{to{opacity:1;transform:translateY(0)}}
 @keyframes barIn{to{opacity:1;transform:scaleX(1)}}
 
 /* AUTH SCREEN */
 .auth-screen{display:none;flex:1;overflow-y:auto;padding:32px 24px 40px;flex-direction:column;align-items:center}
 .auth-screen.show{display:flex}
-.auth-logo{font-family:'Noto Serif JP',serif;font-size:28px;font-weight:300;letter-spacing:.1em;color:var(--ink);margin-bottom:4px;text-align:center}
-.auth-logo span{color:var(--rose)}
-.auth-sub{font-size:12px;color:var(--ink-t);margin-bottom:32px;letter-spacing:.06em}
+.auth-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:28px}
+.auth-main-row{display:flex;align-items:baseline;gap:0;line-height:1}
+.auth-jhen{font-family:'Noto Serif JP',serif;font-size:32px;font-weight:300;letter-spacing:.04em;color:var(--ink)}
+.auth-go{font-family:'Noto Serif JP',serif;font-size:32px;font-weight:300;letter-spacing:.04em;color:var(--rose)}
+.auth-haowan{font-size:20px;font-weight:300;color:var(--rose);letter-spacing:.06em;margin-left:6px;font-family:'Noto Sans JP',sans-serif;padding-bottom:3px}
+.auth-sub-row{display:flex;align-items:center;gap:7px}
+.auth-zh{font-size:12px;color:var(--ink-s);letter-spacing:.16em;font-family:'Noto Sans JP',sans-serif}
+.auth-dot{width:3px;height:3px;border-radius:50%;background:var(--rose);opacity:.5}
+.auth-meaning{font-size:12px;color:var(--rose);letter-spacing:.1em;opacity:.75;font-family:'Noto Sans JP',sans-serif}
 .auth-card{background:var(--bg);border:0.5px solid var(--border);border-radius:16px;padding:22px 20px;width:100%;max-width:380px}
 .auth-tabs{display:flex;gap:0;margin-bottom:20px;background:var(--bg-s);border-radius:10px;padding:3px}
 .auth-tab{flex:1;padding:8px;text-align:center;font-size:13px;border-radius:8px;cursor:pointer;color:var(--ink-t);transition:all .15s;font-family:'Noto Sans JP',sans-serif;border:none;background:none}
@@ -351,9 +363,16 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 
 <!-- SPLASH -->
 <div id="splash">
-  <div class="splash-eyebrow">我要去獨旅</div>
-  <div class="splash-logo">JhenGo</div>
-  <div class="splash-sub">好玩の旅遊計畫</div>
+  <div class="splash-logo-wrap">
+    <div class="splash-main-row">
+      <span class="splash-jhen">Jhen</span><span class="splash-go">Go</span><span class="splash-haowan">好玩</span>
+    </div>
+    <div class="splash-sub-row">
+      <span class="splash-zh">真夠好玩</span>
+      <span class="splash-dot"></span>
+      <span class="splash-meaning">旅遊計畫</span>
+    </div>
+  </div>
   <div class="splash-bar"></div>
 </div>
 
@@ -362,8 +381,16 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 
   <!-- ══ AUTH SCREEN ══ -->
   <div class="auth-screen" id="authScreen">
-    <div class="auth-logo">JhenGo<span>好玩</span></div>
-    <div class="auth-sub">旅遊計畫 · 多人同步</div>
+    <div class="auth-logo-wrap">
+      <div class="auth-main-row">
+        <span class="auth-jhen">Jhen</span><span class="auth-go">Go</span><span class="auth-haowan">好玩</span>
+      </div>
+      <div class="auth-sub-row">
+        <span class="auth-zh">真夠好玩</span>
+        <span class="auth-dot"></span>
+        <span class="auth-meaning">旅遊計畫</span>
+      </div>
+    </div>
     <div class="auth-card">
       <div class="auth-tabs">
         <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">登入</button>
