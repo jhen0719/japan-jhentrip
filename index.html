@@ -14,56 +14,36 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
 
-<!-- Firebase SDK (compat - no module needed) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script>
-firebase.initializeApp({
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, getDocs, updateDoc, arrayUnion, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
   apiKey:            "AIzaSyB7Apw0UWc6T_vuU_wR6Eym50DdLM0VUC0",
   authDomain:        "jhentrip.firebaseapp.com",
   projectId:         "jhentrip",
   storageBucket:     "jhentrip.firebasestorage.app",
   messagingSenderId: "8716132933",
   appId:             "1:8716132933:web:465a415ef79fab4fe2792c"
-});
-
-var _db   = firebase.firestore();
-var _auth = firebase.auth();
-
-// ── expose compat API matching the rest of the app ──
-window._fb = {
-  db:   _db,
-  auth: _auth,
-  // firestore helpers
-  doc:       function(db, col, id){ return db.collection(col).doc(id); },
-  getDoc:    function(ref){ return ref.get(); },
-  setDoc:    function(ref, data, opts){ return opts && opts.merge ? ref.set(data, opts) : ref.set(data); },
-  collection:function(db, col){ return db.collection(col); },
-  addDoc:    function(colRef, data){ return colRef.add(data); },
-  query:     function(colRef){ return colRef; },
-  where:     function(field, op, val){ return { field:field, op:op, val:val }; },
-  getDocs:   function(q){
-    if(q && q._query) return q.get();
-    // handle chained where
-    if(q && q._conditions){ var r=q._ref; q._conditions.forEach(function(c){r=r.where(c.field,c.op,c.val);}); return r.get(); }
-    return q.get();
-  },
-  updateDoc: function(ref, data){ return ref.update(data); },
-  arrayUnion:function(){ var args=Array.from(arguments); return firebase.firestore.FieldValue.arrayUnion.apply(null,args); },
-  onSnapshot:function(ref, cb){ return ref.onSnapshot(cb); },
-  createUserWithEmailAndPassword: function(auth, email, pwd){ return auth.createUserWithEmailAndPassword(email, pwd); },
-  signInWithEmailAndPassword:     function(auth, email, pwd){ return auth.signInWithEmailAndPassword(email, pwd); },
-  signOut:   function(auth){ return auth.signOut(); },
-  onAuthStateChanged: function(auth, cb){ return auth.onAuthStateChanged(cb); },
-  updateProfile:      function(user, data){ return user.updateProfile(data); }
 };
 
-// ── auth state — direct callback, no module timing issues ──
-_auth.onAuthStateChanged(function(user){
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
+
+let unsubTrip = null; // realtime listener unsubscribe
+
+// ── expose to global ──
+window._fb = { db, auth, doc, getDoc, setDoc, collection, addDoc, query, where, getDocs, updateDoc, arrayUnion, onSnapshot, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile };
+
+// ── auth state ──
+onAuthStateChanged(auth, user => {
   window._currentUser = user || null;
+  // poll until main script has defined onAuthReady, then call it
   (function tryNotify(){
-    if(typeof window.onAuthReady === 'function'){
+    if (typeof window.onAuthReady === 'function') {
       window.onAuthReady(user);
     } else {
       setTimeout(tryNotify, 30);
@@ -88,7 +68,6 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 
 /* APP SHELL */
 .app{max-width:480px;margin:0 auto;background:var(--bg);height:100vh;display:flex;flex-direction:column;opacity:0;transition:opacity .9s;position:fixed;top:0;left:0;right:0;box-shadow:0 0 40px rgba(28,25,23,.08)}
-#mainContent{display:none;flex:1;flex-direction:column;min-height:0}
 .app.visible{opacity:1}
 
 /* SPLASH */
@@ -380,8 +359,6 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .member-title span{font-size:11px;color:var(--ink-t);font-family:'Noto Sans JP',sans-serif;font-weight:300}
 .member-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid var(--border)}
 .member-row:last-child{border-bottom:none}
-.member-action-btn{background:var(--rose-l);color:var(--rose-d);border:.5px solid var(--rose-m);border-radius:8px;padding:6px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:3px;flex-shrink:0}
-.member-leave-btn{background:var(--bg-s);color:var(--ink-s);border:.5px solid var(--border-m);border-radius:8px;padding:6px 10px;font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:3px;flex-shrink:0}
 .member-avatar{width:36px;height:36px;border-radius:50%;background:var(--rose-l);border:1px solid var(--rose-m);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--rose);flex-shrink:0}
 .member-info{flex:1;min-width:0}
 .member-name{font-size:14px;color:var(--ink);font-weight:500}
@@ -441,7 +418,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
   </div>
 
   <!-- ══ MAIN (after login) ══ -->
-  <div id="mainContent">
+  <div id="mainContent" style="display:none;flex:1;flex-direction:column;min-height:0;display:none">
 
     <!-- page: trips list -->
     <div id="pageTrips" class="tab-page show">
@@ -789,9 +766,6 @@ setTimeout(function(){
     app.classList.add('visible');
     var splash = document.getElementById('splash');
     if(splash){ splash.classList.add('fade-out'); setTimeout(function(){ splash.style.display='none'; },900); }
-    // show auth screen as fallback if still nothing visible
-    var auth = document.getElementById('authScreen');
-    if(auth && !auth.classList.contains('show')) auth.classList.add('show');
   }
 }, 5000);
 
@@ -803,14 +777,18 @@ window.onAuthReady = function(user){
 
   if(user){
     document.getElementById('authScreen').className = 'auth-screen';
-    var mc=document.getElementById('mainContent'); mc.style.display='flex'; mc.style.flex='1'; mc.style.flexDirection='column'; mc.style.minHeight='0';
+    var mc = document.getElementById('mainContent');
+    mc.style.display = 'flex';
+    mc.style.flexDirection = 'column';
+    mc.style.flex = '1';
+    mc.style.minHeight = '0';
     // update account page
     document.getElementById('acctName').textContent  = user.displayName || user.email;
     document.getElementById('acctEmail').textContent = user.email;
     loadTripList();
   } else {
     document.getElementById('authScreen').className = 'auth-screen show';
-    document.getElementById('mainContent').style.display='none';
+    document.getElementById('mainContent').style.display = 'none';
     exitTrip(true);
   }
 };
@@ -838,7 +816,8 @@ async function loadTripList(){
   var user = window._currentUser;
   if(!fb || !user) return;
   try{
-    var snap = await fb.db.collection('trips').where('members','array-contains',user.uid).get();
+    var q = fb.query(fb.collection(fb.db,'trips'), fb.where('members','array-contains',user.uid));
+    var snap = await fb.getDocs(q);
     myTrips = [];
     snap.forEach(function(d){ myTrips.push(Object.assign({id:d.id}, d.data())); });
     renderTripList();
@@ -920,7 +899,7 @@ async function createTrip(){
   };
   tripData.memberNames[user.uid] = user.displayName || user.email;
   try{
-    var ref = await fb.db.collection('trips').add(tripData);
+    var ref = await fb.addDoc(fb.collection(fb.db,'trips'), tripData);
     closeNewTripModal();
     showSaveToast('旅遊已建立！代碼：'+code);
     await loadTripList();
@@ -934,14 +913,15 @@ async function joinTrip(){
   var fb = window._fb;
   var user = window._currentUser;
   try{
-    var snap = await fb.db.collection('trips').where('code','==',code).get();
+    var q = fb.query(fb.collection(fb.db,'trips'), fb.where('code','==',code));
+    var snap = await fb.getDocs(q);
     if(snap.empty){ showSaveToast('找不到此代碼', true); return; }
     var tripDoc = snap.docs[0];
     var data = tripDoc.data();
     if((data.members||[]).includes(user.uid)){ showSaveToast('你已在此旅遊中'); return; }
     var update = { members: fb.arrayUnion(user.uid) };
     update['memberNames.'+user.uid] = user.displayName || user.email;
-    await fb.db.collection('trips').doc(tripDoc.id).update(update);
+    await fb.updateDoc(fb.doc(fb.db,'trips',tripDoc.id), update);
     document.getElementById('joinCodeInput').value = '';
     showSaveToast('已加入：'+data.name);
     await loadTripList();
@@ -975,7 +955,7 @@ function openTrip(tripId){
   // subscribe realtime
   if(unsubTrip) unsubTrip();
   var fb = window._fb;
-  unsubTrip = fb.db.collection('trips').doc(tripId).onSnapshot(function(snap){
+  unsubTrip = fb.onSnapshot(fb.doc(fb.db,'trips',tripId), function(snap){
     if(!snap.exists()) return;
     var d = snap.data();
     if(Array.isArray(d.days) && d.days.length){
@@ -1041,7 +1021,7 @@ async function fbSaveDays(){
   if(!currentTripId) return;
   var fb = window._fb;
   try{
-    await fb.db.collection('trips').doc(currentTripId).set({ days: JSON.parse(JSON.stringify(days)) }, { merge: true });
+    await fb.setDoc(fb.doc(fb.db,'trips',currentTripId), { days: JSON.parse(JSON.stringify(days)) }, { merge: true });
     showSaveToast('行程已同步 ☁');
   }catch(e){ showSaveToast('同步失敗：'+(e.code||e.message), true); }
 }
@@ -1251,95 +1231,33 @@ function toggleJoinDrawer(){
 /* ============================================================
    MEMBER PANEL
    ============================================================ */
-async function openMemberPanel(){
-  if(!currentTripId) return;
-  var fb = window._fb;
+function openMemberPanel(){
+  var trip = myTrips.find(function(t){ return t.id === currentTripId; });
+  if(!trip) return;
+  var names = trip.memberNames || {};
+  var members = trip.members || [];
   var uid = window._currentUser ? window._currentUser.uid : null;
-  var tripData;
-  try{
-    var snap = await fb.getDoc(fb.doc(fb.db,'trips',currentTripId));
-    if(!snap.exists()) return;
-    tripData = snap.data();
-    // update local cache
-    var cached = myTrips.find(function(t){ return t.id===currentTripId; });
-    if(cached) Object.assign(cached, tripData);
-  } catch(e){
-    // fallback to cached
-    tripData = myTrips.find(function(t){ return t.id===currentTripId; });
-    if(!tripData) return;
-  }
-  var names = tripData.memberNames||{};
-  var members = tripData.members||[];
-  var createdBy = tripData.createdBy||'';
-  var iAmCreator = createdBy===uid;
-  window._memberIds = members.slice();
-  document.getElementById('memberCount').textContent = members.length+' 人';
-  var rows = members.map(function(mid, i){
-    var name = names[mid]||mid;
+  document.getElementById('memberCount').textContent = members.length + ' 人';
+  document.getElementById('memberList').innerHTML = members.map(function(mid){
+    var name = names[mid] || mid;
     var initial = name.charAt(0).toUpperCase();
-    var isYou = mid===uid;
-    var isCreator = mid===createdBy;
-    var actionHtml = '';
-    if(iAmCreator && !isYou){
-      actionHtml = '<button class="member-action-btn" onclick="removeMemberByIdx('+i+')"><span class="ms" style="font-size:14px">person_remove</span>移除</button>';
-    } else if(isYou && !isCreator){
-      actionHtml = '<button class="member-leave-btn" onclick="leaveTrip()"><span class="ms" style="font-size:14px">logout</span>離開</button>';
-    }
-    return '<div class="member-row">'+
-      '<div class="member-avatar">'+esc(initial)+'</div>'+
-      '<div class="member-info">'+
+    var isYou = mid === uid;
+    var isCreator = mid === trip.createdBy;
+    return '<div class="member-row">' +
+      '<div class="member-avatar">'+esc(initial)+'</div>' +
+      '<div class="member-info">' +
         '<div class="member-name" style="display:flex;align-items:center;gap:6px">'+esc(name)+
-          (isYou?'<span class="member-you">你</span>':'')+
-        '</div>'+
-        '<div class="member-badge">'+(isCreator?'建立者':'成員')+'</div>'+
-      '</div>'+
-      actionHtml+
+          (isYou ? '<span class="member-you">你</span>' : '') +
+        '</div>' +
+        '<div class="member-badge">'+(isCreator?'建立者':'成員')+'</div>' +
+      '</div>' +
     '</div>';
-  });
-  document.getElementById('memberList').innerHTML = rows.join('');
+  }).join('');
   document.getElementById('memberOverlay').classList.add('open');
 }
 
 function closeMemberPanel(){
   document.getElementById('memberOverlay').classList.remove('open');
-}
-
-async function removeMemberByIdx(i){
-  var targetUid = (window._memberIds||[])[i];
-  if(!targetUid) return;
-  var trip = myTrips.find(function(t){ return t.id===currentTripId; });
-  if(!trip) return;
-  var name = (trip.memberNames||{})[targetUid]||targetUid;
-  if(!confirm('確定要移除成員「'+name+'」？')) return;
-  var fb = window._fb;
-  try{
-    var newMembers = (trip.members||[]).filter(function(m){ return m!==targetUid; });
-    var upd = { members: newMembers };
-    upd['memberNames.'+targetUid] = null;
-    await fb.updateDoc(fb.doc(fb.db,'trips',currentTripId), upd);
-    showSaveToast('已移除：'+name);
-    closeMemberPanel();
-    await loadTripList();
-    openMemberPanel();
-  } catch(e){ showSaveToast('移除失敗：'+(e.code||e.message), true); }
-}
-
-async function leaveTrip(){
-  var trip = myTrips.find(function(t){ return t.id===currentTripId; });
-  if(!trip) return;
-  if(!confirm('確定要離開「'+trip.name+'」？\n離開後需重新輸入代碼才能再加入。')) return;
-  var fb = window._fb;
-  var uid = window._currentUser.uid;
-  try{
-    var newMembers = (trip.members||[]).filter(function(m){ return m!==uid; });
-    var upd = { members: newMembers };
-    upd['memberNames.'+uid] = null;
-    await fb.updateDoc(fb.doc(fb.db,'trips',currentTripId), upd);
-    showSaveToast('已離開旅遊');
-    closeMemberPanel();
-    exitTrip();
-    await loadTripList();
-  } catch(e){ showSaveToast('操作失敗：'+(e.code||e.message), true); }
 }
 
 // onAuthReady is called by Firebase module once auth state is known.
