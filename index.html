@@ -1068,8 +1068,20 @@ function renderItinerary(){
   var container = document.getElementById('itinerary-container');
   if(!tabsRow||!container) return;
   // render tabs
+  var trip = myTrips.find(function(t){ return t.id===currentTripId; });
+  var startDateStr = trip ? (trip.startDate||'') : '';
   tabsRow.innerHTML = days.map(function(day,di){
-    return '<button class="dtab'+(di===currentDay?' active':'')+'" onclick="switchDay('+di+')">Day '+(di+1)+'<br><span style="font-size:10px;opacity:.7">'+esc(day.sub||day.dayNum)+'</span></button>';
+    var label = '';
+    if(startDateStr){
+      var base = new Date(startDateStr + 'T00:00:00');
+      base.setDate(base.getDate() + di);
+      var mm = String(base.getMonth()+1).padStart(2,'0');
+      var dd = String(base.getDate()).padStart(2,'0');
+      label = mm+'/'+dd;
+    } else {
+      label = day.sub || day.dayNum;
+    }
+    return '<button class="dtab'+(di===currentDay?' active':'')+'" onclick="switchDay('+di+')">Day '+(di+1)+'<br><span style="font-size:10px;opacity:.7">'+esc(label)+'</span></button>';
   }).join('') + '<button class="dtab" onclick="addDay()" style="flex:0 0 auto;padding:7px 10px;min-width:36px" title="新增天"><span class="ms" style="font-size:18px">add</span></button>';
   // render panels
   var html = '';
@@ -1136,7 +1148,7 @@ function openAddStep(di){
 }
 function closeModal(){ document.getElementById('editModal').classList.remove('open'); document.body.style.overflow=''; }
 
-function timeToMin(t){ if(!t||!t.trim()) return 9999; var p=t.trim().split(':'); var h=parseInt(p[0])||0,m=parseInt(p[1])||0; if(h<6) h+=24; return h*60+m; }
+function timeToMin(t){ if(!t||!t.trim()) return 9999; var p=t.trim().split(':'); var h=parseInt(p[0])||0,m=parseInt(p[1])||0; return h*60+m; }
 function sortSteps(di){ var w=[],n=[]; days[di].steps.forEach(function(s){ (s.time&&s.time.trim()?w:n).push(s); }); w.sort(function(a,b){ return timeToMin(a.time)-timeToMin(b.time); }); days[di].steps=w.concat(n); }
 
 function saveEdit(){
