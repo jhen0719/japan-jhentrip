@@ -401,6 +401,14 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .time-item{height:42px;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif JP',serif;font-size:22px;font-weight:300;color:var(--ink-t);transition:color .1s,font-size .1s}
 .time-item.selected{color:var(--ink);font-size:26px;font-weight:400}
 .time-picker-disabled{opacity:.4;pointer-events:none}
+
+/* ── DAY EDIT MODAL ── */
+.day-modal-overlay{position:fixed;inset:0;background:rgba(28,25,23,.4);z-index:540;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
+.day-modal-overlay.open{opacity:1;pointer-events:all}
+.day-modal-sheet{background:var(--bg);border-radius:22px 22px 0 0;padding:20px 18px 40px;width:100%;max-width:480px;transform:translateY(40px);transition:transform .28s cubic-bezier(.32,.72,0,1)}
+.day-modal-overlay.open .day-modal-sheet{transform:translateY(0)}
+.day-modal-handle{width:36px;height:4px;background:var(--border-m);border-radius:2px;margin:0 auto 16px}
+.day-modal-title{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -735,6 +743,28 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
   </div>
 </div>
 
+
+<!-- DAY EDIT MODAL -->
+<div class="day-modal-overlay" id="dayEditModal" onclick="if(event.target===this)closeDayEditModal()">
+  <div class="day-modal-sheet">
+    <div class="day-modal-handle"></div>
+    <div class="day-modal-title" id="dayModalTitle">編輯 Day 1</div>
+    <div class="field-group">
+      <div class="field-label">日期標籤（顯示在 tab 下方）</div>
+      <input class="field-input" id="daySubInput" type="text" placeholder="例：06/19 或留空自動依出發日計算">
+    </div>
+    <div class="field-group">
+      <div class="field-label">天標題（選填）</div>
+      <input class="field-input" id="dayTitleInput" type="text" placeholder="例：Day 1">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;padding-top:12px;border-top:.5px solid var(--border)">
+      <button class="btn-cancel" style="flex:1" onclick="closeDayEditModal()">取消</button>
+      <button style="flex:0 0 auto;background:var(--rose-l);color:var(--rose-d);border:.5px solid var(--rose-m);border-radius:11px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Noto Sans JP',sans-serif;font-size:13px" onclick="deleteDay()"><span class="ms" style="font-size:16px">delete</span>刪除此天</button>
+      <button class="btn-save" style="flex:1" onclick="saveDayEdit()">儲存</button>
+    </div>
+  </div>
+</div>
+
 <!-- toast -->
 <div class="save-toast" id="saveToast"></div>
 
@@ -870,6 +900,49 @@ function buildTimeCol(colId, count, selected, onChange){
     e.preventDefault();
     snapTo(current + (e.deltaY > 0 ? 1 : -1));
   }, {passive:false});
+}
+
+
+/* ============================================================
+   DAY EDIT MODAL
+   ============================================================ */
+var _editingDayIdx = -1;
+
+function openDayEditModal(di){
+  _editingDayIdx = di;
+  var day = days[di];
+  document.getElementById('dayModalTitle').textContent = 'Day ' + (di+1) + ' 編輯';
+  document.getElementById('daySubInput').value  = day.sub  || '';
+  document.getElementById('dayTitleInput').value = day.title || '';
+  document.getElementById('dayEditModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDayEditModal(){
+  document.getElementById('dayEditModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function saveDayEdit(){
+  if(_editingDayIdx < 0) return;
+  days[_editingDayIdx].sub   = document.getElementById('daySubInput').value.trim();
+  days[_editingDayIdx].title = document.getElementById('dayTitleInput').value.trim() || ('Day '+(_editingDayIdx+1));
+  closeDayEditModal();
+  renderItinerary();
+  switchDay(_editingDayIdx);
+  fbSaveDays();
+}
+
+function deleteDay(){
+  if(_editingDayIdx < 0) return;
+  if(days.length <= 1){ showSaveToast('至少需要保留一天', true); return; }
+  if(!confirm('確定刪除 Day '+(_editingDayIdx+1)+'？此天所有行程也會刪除。')) return;
+  days.splice(_editingDayIdx, 1);
+  closeDayEditModal();
+  var newIdx = Math.min(_editingDayIdx, days.length-1);
+  renderItinerary();
+  switchDay(newIdx);
+  fbSaveDays();
 }
 
 /* ── Global error handlers ── */
