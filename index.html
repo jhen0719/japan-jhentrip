@@ -711,6 +711,34 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 <div class="save-toast" id="saveToast"></div>
 
 <script>
+/* ── Global error handlers ── */
+window.onerror = function(msg, src, line, col, err){
+  console.error('onerror:', msg, src, line);
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e){
+  var msg = e.reason ? (e.reason.code || e.reason.message || String(e.reason)) : String(e);
+  console.error('UnhandledRejection:', msg);
+  if(window.showSaveToast) window.showSaveToast('錯誤：'+msg, true);
+});
+
+/* ── Safe async wrapper ── */
+function safeAsync(fn){
+  return function(){
+    var args = arguments;
+    var result = fn.apply(this, args);
+    if(result && typeof result.catch === 'function'){
+      result.catch(function(e){
+        var msg = e ? (e.code || e.message || String(e)) : 'unknown error';
+        console.error('Async error in', fn.name, e);
+        if(window.showSaveToast) window.showSaveToast('錯誤：'+msg, true);
+      });
+    }
+    return result;
+  };
+}
+
+
 /* ============================================================
    HELPERS
    ============================================================ */
@@ -1049,7 +1077,9 @@ async function fbSaveDays(){
 function manualSave(){
   var btn = document.getElementById('syncBtn');
   if(btn) btn.classList.add('syncing');
-  fbSaveDays().finally(function(){ if(btn) btn.classList.remove('syncing'); });
+  fbSaveDays()
+    .catch(function(e){ showSaveToast('同步失敗：'+(e&&(e.code||e.message)||String(e)), true); })
+    .finally(function(){ if(btn) btn.classList.remove('syncing'); });
 }
 
 /* ============================================================
@@ -1077,7 +1107,7 @@ function renderVenues(step, di, si){
     html += '<div class="venue-row" id="vr-'+v.id+'">';
     html += '<div class="venue-header" onclick="toggleVenue(\''+v.id+'\')"><div class="venue-icon"><span class="ms" style="font-size:16px;color:var(--amber)">storefront</span></div>';
     html += '<span class="venue-name">'+esc(v.name)+'</span>';
-    if(v.link) html += '<a class="link-btn" style="margin-top:0;padding:3px 8px" href="'+esc(v.link)+'" target="_blank" onclick="event.stopPropagation()"><span class="ms" style="font-size:13px">location_on</span></a>';
+    if(v.link) html += '<a class="link-btn" style="margin-top:0;padding:3px 8px" href="'+esc(v.link)+'" target="_blank" onclick="event.stopPropagation()"><span class="ms" style="font-size:13px">open_in_new</span></a>';
     html += '<button style="background:none;border:none;cursor:pointer;color:var(--sora);padding:2px 4px;display:flex;align-items:center;font-size:11px" onclick="event.stopPropagation();openVmModal('+di+','+si+',\''+v.id+'\')"><span class="ms" style="font-size:14px">edit</span></button>';
     html += '<span class="ms venue-toggle" style="font-size:18px">'+(hasShops?'expand_more':'')+'</span></div>';
     if(hasShops){ html += '<div class="venue-shops">'+v.shops.map(function(s){ return '<span class="shop-chip">'+esc(s)+'</span>'; }).join('')+'</div>'; }
@@ -1121,7 +1151,7 @@ function renderItinerary(){
       html += '<div style="display:flex;align-items:flex-start;gap:6px"><div style="flex:1;min-width:0">';
       html += '<div class="sc-head"><span class="sc-title">'+esc(step.title)+'</span>'+(step.time?'<span class="sc-time">'+esc(step.time)+'</span>':'')+'</div>';
       if(step.notes) html += '<div class="sc-sub">'+esc(step.notes)+'</div>';
-      if(step.link) html += '<a class="link-btn" href="'+esc(step.link)+'" target="_blank" onclick="event.stopPropagation()"><span class="ms">location_on</span>'+esc(step.linkLabel)+'</a>';
+      if(step.link) html += '<a class="link-btn" href="'+esc(step.link)+'" target="_blank" onclick="event.stopPropagation()"><span class="ms">open_in_new</span>'+esc(step.linkLabel)+'</a>';
       html += '</div><button style="background:none;border:none;cursor:pointer;padding:2px;display:flex" onclick="openEdit('+di+','+si+')"><span class="ms edit-icon" style="font-size:16px">edit</span></button>';
       html += '</div>';
       if(step.venues&&step.venues.length) html += renderVenues(step,di,si);
@@ -1343,6 +1373,16 @@ async function leaveTrip(){
 }
 
 // onAuthReady is called by Firebase module once auth state is known.
+
+/* ── Wrap async onclick handlers to catch unhandled rejections ── */
+loadTripList   = safeAsync(loadTripList);
+createTrip     = safeAsync(createTrip);
+joinTrip       = safeAsync(joinTrip);
+fbSaveDays     = safeAsync(fbSaveDays);
+openMemberPanel   = safeAsync(openMemberPanel);
+removeMemberByIdx = safeAsync(removeMemberByIdx);
+leaveTrip      = safeAsync(leaveTrip);
+
 </script>
 </body>
 </html>
