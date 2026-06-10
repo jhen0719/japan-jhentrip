@@ -387,6 +387,20 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .member-name{font-size:14px;color:var(--ink);font-weight:500}
 .member-badge{font-size:10px;color:var(--ink-t);margin-top:2px}
 .member-you{font-size:10px;background:var(--rose-l);color:var(--rose);border-radius:10px;padding:2px 7px;border:.5px solid var(--rose-m)}
+
+/* ── TIME PICKER ── */
+.time-picker-wrap{display:flex;align-items:center;justify-content:center;gap:0;height:150px;position:relative;background:var(--bg-s);border:.5px solid var(--border);border-radius:9px;overflow:hidden;user-select:none;touch-action:none}
+.time-picker-mask{position:absolute;left:0;right:0;height:50px;z-index:2;pointer-events:none}
+.time-picker-mask.top{top:0;background:linear-gradient(to bottom, var(--bg-s) 0%, transparent 100%)}
+.time-picker-mask.bottom{bottom:0;background:linear-gradient(to top, var(--bg-s) 0%, transparent 100%)}
+.time-picker-center-bar{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:42px;border-top:.5px solid var(--border-m);border-bottom:.5px solid var(--border-m);z-index:1;pointer-events:none}
+.time-sep{font-family:'Noto Serif JP',serif;font-size:24px;font-weight:300;color:var(--ink);z-index:3;padding:0 4px;flex-shrink:0;pointer-events:none}
+.time-col{flex:1;height:100%;overflow:hidden;position:relative;cursor:grab;z-index:3}
+.time-col:active{cursor:grabbing}
+.time-col-inner{position:absolute;width:100%;top:0;transition:transform .15s cubic-bezier(.32,.72,0,1)}
+.time-item{height:42px;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif JP',serif;font-size:22px;font-weight:300;color:var(--ink-t);transition:color .1s,font-size .1s}
+.time-item.selected{color:var(--ink);font-size:26px;font-weight:400}
+.time-picker-disabled{opacity:.4;pointer-events:none}
 </style>
 </head>
 <body>
@@ -629,7 +643,21 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
       </select>
     </div>
     <div class="field-group"><div class="field-label">標題</div><input class="field-input" id="editTitle" type="text" placeholder="例：麵屋武藏 二天"></div>
-    <div class="field-group"><div class="field-label">時間（選填）</div><input class="field-input" id="editTime" type="text" placeholder="例：11:00"></div>
+    <div class="field-group">
+      <div class="field-label" style="display:flex;align-items:center;justify-content:space-between">
+        時間（選填）
+        <button type="button" onclick="clearTimePicker()" style="font-size:11px;color:var(--ink-t);background:none;border:none;cursor:pointer;padding:0">清除</button>
+      </div>
+      <div class="time-picker-wrap" id="timePickerWrap">
+        <div class="time-picker-mask top"></div>
+        <div class="time-picker-mask bottom"></div>
+        <div class="time-picker-center-bar"></div>
+        <div class="time-col" id="hourCol"></div>
+        <div class="time-sep">:</div>
+        <div class="time-col" id="minCol"></div>
+      </div>
+      <input type="hidden" id="editTime">
+    </div>
     <div class="field-group"><div class="field-label">備註內容</div><textarea class="field-textarea" id="editNotes" placeholder="地點、注意事項…"></textarea></div>
     <div class="field-group"><div class="field-label">連結（選填）</div><input class="field-input" id="editLink" type="url" placeholder="https://maps.app.goo.gl/…"></div>
     <div class="field-group"><div class="field-label">連結名稱</div><input class="field-input" id="editLinkLabel" type="text" placeholder="例：地圖、購票"></div>
@@ -711,6 +739,139 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 <div class="save-toast" id="saveToast"></div>
 
 <script>
+
+/* ============================================================
+   TIME PICKER
+   ============================================================ */
+var _tpHour = -1, _tpMin = -1; // -1 = no time selected
+
+function initTimePicker(initialVal){
+  var h = -1, m = -1;
+  if(initialVal && initialVal.match(/^\d{1,2}:\d{2}$/)){
+    var parts = initialVal.split(':');
+    h = parseInt(parts[0]);
+    m = parseInt(parts[1]);
+  }
+  _tpHour = h;
+  _tpMin  = m;
+  buildTimeCol('hourCol', 24, h, function(v){ _tpHour = v; updateTimeHidden(); });
+  buildTimeCol('minCol',  60, m, function(v){ _tpMin  = v; updateTimeHidden(); });
+  updateTimeHidden();
+}
+
+function updateTimeHidden(){
+  var val = '';
+  if(_tpHour >= 0 && _tpMin >= 0){
+    val = String(_tpHour).padStart(2,'0') + ':' + String(_tpMin).padStart(2,'0');
+  }
+  document.getElementById('editTime').value = val;
+}
+
+function clearTimePicker(){
+  _tpHour = -1; _tpMin = -1;
+  buildTimeCol('hourCol', 24, -1, function(v){ _tpHour = v; updateTimeHidden(); });
+  buildTimeCol('minCol',  60, -1, function(v){ _tpMin  = v; updateTimeHidden(); });
+  updateTimeHidden();
+}
+
+function buildTimeCol(colId, count, selected, onChange){
+  var col = document.getElementById(colId);
+  if(!col) return;
+  // item height
+  var IH = 42;
+  // total items: pad 2 on each side so centre is visible
+  var OFFSET = 2;
+  var inner = document.createElement('div');
+  inner.className = 'time-col-inner';
+
+  // blank pads
+  for(var p=0;p<OFFSET;p++){
+    var blank = document.createElement('div');
+    blank.className = 'time-item';
+    inner.appendChild(blank);
+  }
+  for(var i=0;i<count;i++){
+    var item = document.createElement('div');
+    item.className = 'time-item' + (i===selected?' selected':'');
+    item.textContent = String(i).padStart(2,'0');
+    inner.appendChild(item);
+  }
+  for(var p=0;p<OFFSET;p++){
+    var blank = document.createElement('div');
+    blank.className = 'time-item';
+    inner.appendChild(blank);
+  }
+
+  col.innerHTML = '';
+  col.appendChild(inner);
+
+  // position
+  var current = selected >= 0 ? selected : 0;
+  inner.style.transform = 'translateY(' + (-current * IH) + 'px)';
+
+  function snapTo(idx){
+    if(idx < 0) idx = 0;
+    if(idx >= count) idx = count - 1;
+    current = idx;
+    inner.style.transition = 'transform .2s cubic-bezier(.32,.72,0,1)';
+    inner.style.transform = 'translateY(' + (-current * IH) + 'px)';
+    inner.querySelectorAll('.time-item').forEach(function(el, i){
+      el.classList.toggle('selected', i - OFFSET === current);
+    });
+    onChange(current);
+  }
+
+  // ── Touch ──
+  var startY, startPos, isDragging = false;
+  col.addEventListener('touchstart', function(e){
+    startY = e.touches[0].clientY;
+    startPos = current * IH;
+    isDragging = true;
+    inner.style.transition = 'none';
+    e.preventDefault();
+  }, {passive:false});
+  col.addEventListener('touchmove', function(e){
+    if(!isDragging) return;
+    var dy = startY - e.touches[0].clientY;
+    var raw = startPos + dy;
+    inner.style.transform = 'translateY(' + (-raw) + 'px)';
+    e.preventDefault();
+  }, {passive:false});
+  col.addEventListener('touchend', function(e){
+    if(!isDragging) return;
+    isDragging = false;
+    var dy = startY - e.changedTouches[0].clientY;
+    snapTo(Math.round((startPos + dy) / IH));
+  });
+
+  // ── Mouse ──
+  col.addEventListener('mousedown', function(e){
+    startY = e.clientY;
+    startPos = current * IH;
+    isDragging = true;
+    inner.style.transition = 'none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!isDragging || !col.contains(e.target) && !isDragging) return;
+    if(!isDragging) return;
+    var dy = startY - e.clientY;
+    inner.style.transform = 'translateY(' + (-(startPos + dy)) + 'px)';
+  });
+  document.addEventListener('mouseup', function(e){
+    if(!isDragging) return;
+    isDragging = false;
+    var dy = startY - e.clientY;
+    snapTo(Math.round((startPos + dy) / IH));
+  });
+
+  // ── Wheel ──
+  col.addEventListener('wheel', function(e){
+    e.preventDefault();
+    snapTo(current + (e.deltaY > 0 ? 1 : -1));
+  }, {passive:false});
+}
+
 /* ── Global error handlers ── */
 window.onerror = function(msg, src, line, col, err){
   console.error('onerror:', msg, src, line);
@@ -1193,6 +1354,7 @@ function openEdit(di,si){
   document.getElementById('modalDeleteBtn').style.display='';
   document.getElementById('editModal').classList.add('open');
   document.body.style.overflow='hidden';
+  setTimeout(function(){ initTimePicker(s.time||''); }, 50);
 }
 function openAddStep(di){
   editingDay=di;editingStep=-1;isAdding=true;
@@ -1201,7 +1363,7 @@ function openAddStep(di){
   document.getElementById('modalDeleteBtn').style.display='none';
   document.getElementById('editModal').classList.add('open');
   document.body.style.overflow='hidden';
-  setTimeout(function(){ document.getElementById('editTitle').focus(); },300);
+  setTimeout(function(){ initTimePicker(''); document.getElementById('editTitle').focus(); },50);
 }
 function closeModal(){ document.getElementById('editModal').classList.remove('open'); document.body.style.overflow=''; }
 
