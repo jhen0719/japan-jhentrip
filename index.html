@@ -219,7 +219,8 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .legend{display:flex;flex-wrap:wrap;gap:8px;padding:9px 16px;background:var(--bg-s);font-size:10px;color:var(--ink-t);flex-shrink:0;border-bottom:.5px solid var(--border);letter-spacing:.04em}
 .legend-item{display:flex;align-items:center;gap:4px}
 .legend-dot{width:3px;height:14px;border-radius:2px;flex-shrink:0}
-.day-tabs{display:flex;padding:10px 12px;border-bottom:.5px solid var(--border);gap:5px;flex-shrink:0}
+.day-tabs{display:flex;gap:5px;flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.day-tabs::-webkit-scrollbar{display:none}
 .dtab{flex:1;padding:7px 4px;border-radius:20px;border:.5px solid var(--border);font-size:11px;cursor:pointer;color:var(--ink-t);background:var(--bg);font-family:'Noto Sans JP',sans-serif;transition:all .18s;line-height:1.5;text-align:center}
 .dtab.active{background:var(--ink);color:var(--bg);border-color:transparent}
 .day-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
@@ -409,6 +410,22 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
 .day-modal-overlay.open .day-modal-sheet{transform:translateY(0)}
 .day-modal-handle{width:36px;height:4px;background:var(--border-m);border-radius:2px;margin:0 auto 16px}
 .day-modal-title{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:400;margin-bottom:16px}
+
+/* ── PREP ITEMS ── */
+.prep-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:.5px solid var(--border)}
+.prep-item:last-child{border-bottom:none}
+.prep-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border-m);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .15s;background:var(--bg)}
+.prep-check.on{background:var(--matcha);border-color:var(--matcha)}
+.prep-label{flex:1;font-size:13px;color:var(--ink)}
+.prep-item.done .prep-label{text-decoration:line-through;color:var(--ink-t)}
+.prep-link{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--sora);text-decoration:none;background:var(--bg-s);border:.5px solid var(--border-m);border-radius:6px;padding:3px 8px;margin-top:3px}
+.prep-del{background:none;border:none;cursor:pointer;color:var(--ink-t);padding:4px;display:flex}
+.prep-empty{text-align:center;padding:20px 0;font-size:12px;color:var(--ink-t);line-height:1.8}
+/* prep modal */
+.prep-overlay{position:fixed;inset:0;background:rgba(28,25,23,.4);z-index:560;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
+.prep-overlay.open{opacity:1;pointer-events:all}
+.prep-sheet{background:var(--bg);border-radius:22px 22px 0 0;padding:20px 18px 40px;width:100%;max-width:480px;transform:translateY(40px);transition:transform .28s cubic-bezier(.32,.72,0,1)}
+.prep-overlay.open .prep-sheet{transform:translateY(0)}
 </style>
 </head>
 <body>
@@ -507,6 +524,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
         <button class="bnav-btn active" id="tbnav-0" onclick="switchTripTab(0)" style="flex:1;padding:8px 4px"><span class="ms">map</span>行程</button>
         <button class="bnav-btn" id="tbnav-1" onclick="switchTripTab(1)" style="flex:1;padding:8px 4px"><span class="ms">currency_yen</span>換算</button>
         <button class="bnav-btn" id="tbnav-2" onclick="switchTripTab(2)" style="flex:1;padding:8px 4px"><span class="ms">checklist</span>購買清單</button>
+        <button class="bnav-btn" id="tbnav-3" onclick="switchTripTab(3)" style="flex:1;padding:8px 4px"><span class="ms">backpack</span>行前準備</button>
       </div>
 
       <!-- itinerary -->
@@ -517,7 +535,13 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
           <div class="legend-item"><div class="legend-dot" style="background:#9fc4a8"></div>住宿</div>
           <div class="legend-item"><div class="legend-dot" style="background:#c8b898"></div>景點/購物</div>
         </div>
-        <div class="day-tabs" id="dayTabsRow"></div>
+        <div style="display:flex;align-items:center;border-bottom:.5px solid var(--border);flex-shrink:0">
+          <div class="day-tabs" id="dayTabsRow" style="flex:1;border-bottom:none;padding:10px 8px 10px 12px;overflow-x:auto;scrollbar-width:none;gap:5px;min-width:0"></div>
+          <div style="display:flex;gap:4px;padding:0 10px;flex-shrink:0;border-left:.5px solid var(--border)">
+            <button onclick="addDay()" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:none;border:.5px solid var(--border);border-radius:8px;cursor:pointer;color:var(--ink-t)" title="新增天"><span class="ms" style="font-size:18px">add</span></button>
+            <button id="dayEditBtn" onclick="openDayEditModal(currentDay)" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:none;border:.5px solid var(--border);border-radius:8px;cursor:pointer;color:var(--ink-t)" title="編輯天"><span class="ms" style="font-size:16px">edit_calendar</span></button>
+          </div>
+        </div>
         <div class="day-scroll"><div id="itinerary-container"></div></div>
       </div>
 
@@ -592,6 +616,28 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
           <div class="sl-fab"><button onclick="openSlModal()"><span class="ms" style="font-size:20px">add</span>新增商品</button></div>
         </div>
       </div>
+
+      <!-- prep page -->
+      <div id="tripPage-3" class="tab-page">
+        <div class="page-header" style="padding:14px 18px 12px;border-bottom:.5px solid var(--border);flex-shrink:0">
+          <h2 style="font-family:'Noto Serif JP',serif;font-size:16px;font-weight:400">行前準備</h2>
+          <p style="font-size:11px;color:var(--ink-t);margin-top:3px">本地儲存 · 出發前確認清單</p>
+        </div>
+        <div class="page-scroll" style="padding:0">
+          <div style="padding:14px 16px 6px;display:flex;align-items:center;justify-content:space-between">
+            <div style="font-family:'Noto Serif JP',serif;font-size:14px">🧳 行李準備</div>
+            <button class="add-btn" onclick="openPrepModal('luggage')"><span class="ms" style="font-size:14px">add</span>新增</button>
+          </div>
+          <div id="luggageList" style="padding:0 16px 10px"></div>
+          <div style="height:.5px;background:var(--border);margin:0 16px"></div>
+          <div style="padding:14px 16px 6px;display:flex;align-items:center;justify-content:space-between">
+            <div style="font-family:'Noto Serif JP',serif;font-size:14px">📱 eSIM</div>
+            <button class="add-btn" onclick="openPrepModal('esim')"><span class="ms" style="font-size:14px">add</span>新增連結</button>
+          </div>
+          <div id="esimList" style="padding:0 16px 16px"></div>
+        </div>
+      </div>
+
     </div>
 
     <!-- page: account -->
@@ -765,6 +811,31 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
   </div>
 </div>
 
+
+<!-- PREP MODAL -->
+<div class="prep-overlay" id="prepModal" onclick="if(event.target===this)closePrepModal()">
+  <div class="prep-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="prepModalTitle">新增行李</div>
+    <div class="field-group">
+      <div class="field-label" id="prepItemLabel">物品名稱</div>
+      <input class="field-input" id="prepNameInput" type="text" placeholder="例：護照、充電器">
+    </div>
+    <div class="field-group" id="prepLinkGroup" style="display:none">
+      <div class="field-label">連結（選填）</div>
+      <input class="field-input" id="prepLinkInput" type="url" placeholder="https://...">
+    </div>
+    <div class="field-group" id="prepLinkLabelGroup" style="display:none">
+      <div class="field-label">連結名稱</div>
+      <input class="field-input" id="prepLinkLabelInput" type="text" placeholder="例：購買連結、官方網站">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closePrepModal()">取消</button>
+      <button class="btn-save" onclick="savePrepItem()">新增</button>
+    </div>
+  </div>
+</div>
+
 <!-- toast -->
 <div class="save-toast" id="saveToast"></div>
 
@@ -934,6 +1005,106 @@ function deleteDay(){
   renderItinerary();
   switchDay(newIdx);
   fbSaveDays();
+}
+
+
+/* ============================================================
+   行前準備 (PREP)  — local storage per trip
+   ============================================================ */
+var prepData = { luggage: [], esim: [] };
+var _prepType = 'luggage';
+
+function loadPrep(tripId){
+  prepData = { luggage: [], esim: [] };
+  try{
+    var raw = localStorage.getItem('tabi_'+tripId+'_prep');
+    if(raw) prepData = JSON.parse(raw);
+    if(!prepData.luggage) prepData.luggage = [];
+    if(!prepData.esim)    prepData.esim    = [];
+  }catch(e){}
+  renderPrep();
+}
+
+function savePrep(){
+  if(!currentTripId) return;
+  try{ localStorage.setItem('tabi_'+currentTripId+'_prep', JSON.stringify(prepData)); }catch(e){}
+}
+
+function openPrepModal(type){
+  _prepType = type;
+  var isEsim = type === 'esim';
+  document.getElementById('prepModalTitle').textContent  = isEsim ? '新增 eSIM' : '新增行李物品';
+  document.getElementById('prepItemLabel').textContent   = isEsim ? 'eSIM 名稱 / 說明' : '物品名稱';
+  document.getElementById('prepNameInput').value         = '';
+  document.getElementById('prepLinkInput').value         = '';
+  document.getElementById('prepLinkLabelInput').value    = '';
+  document.getElementById('prepNameInput').placeholder   = isEsim ? '例：Klook eSIM 日本 5天' : '例：護照、充電器';
+  document.getElementById('prepLinkGroup').style.display      = isEsim ? '' : 'none';
+  document.getElementById('prepLinkLabelGroup').style.display = isEsim ? '' : 'none';
+  document.getElementById('prepModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(function(){ document.getElementById('prepNameInput').focus(); }, 300);
+}
+
+function closePrepModal(){
+  document.getElementById('prepModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function savePrepItem(){
+  var name = document.getElementById('prepNameInput').value.trim();
+  if(!name){ alert('請輸入名稱'); return; }
+  var item = {
+    id: Date.now(),
+    name: name,
+    done: false,
+    link: document.getElementById('prepLinkInput').value.trim(),
+    linkLabel: document.getElementById('prepLinkLabelInput').value.trim() || '連結'
+  };
+  prepData[_prepType].push(item);
+  savePrep();
+  renderPrep();
+  closePrepModal();
+}
+
+function handlePrepCheck(el){ togglePrep(el.dataset.type, Number(el.dataset.id)); }
+function handlePrepDel(el){ deletePrep(el.dataset.type, Number(el.dataset.id)); }
+function togglePrep(type, id){
+  var item = prepData[type].find(function(x){ return x.id === id; });
+  if(item){ item.done = !item.done; savePrep(); renderPrep(); }
+}
+
+function deletePrep(type, id){
+  prepData[type] = prepData[type].filter(function(x){ return x.id !== id; });
+  savePrep();
+  renderPrep();
+}
+
+function renderPrepSection(type, containerId){
+  var list = prepData[type] || [];
+  var el = document.getElementById(containerId);
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML = '<div class="prep-empty">'+( type==='esim' ? '還沒有 eSIM 連結<br>新增後可快速跳轉購買' : '還沒有行李清單<br>點「新增」開始整理' )+'</div>';
+    return;
+  }
+  el.innerHTML = list.map(function(item){
+    return '<div class="prep-item'+(item.done?' done':'')+'">'+
+      '<div class="prep-check'+(item.done?' on':'')+'" data-type="'+type+'" data-id="'+item.id+'" onclick="handlePrepCheck(this)">'+
+        (item.done ? '<span class="ms" style="font-size:13px;color:white">check</span>' : '')+
+      '</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="prep-label">'+esc(item.name)+'</div>'+
+        (item.link ? '<a class="prep-link" href="'+esc(item.link)+'" target="_blank"><span class="ms" style="font-size:13px">open_in_new</span>'+esc(item.linkLabel)+'</a>' : '')+
+      '</div>'+
+      '<button class="prep-del" data-type="'+type+'" data-id="'+item.id+'" onclick="handlePrepDel(this)"><span class="ms" style="font-size:18px">delete</span></button>'+
+    '</div>';
+  }).join('');
+}
+
+function renderPrep(){
+  renderPrepSection('luggage','luggageList');
+  renderPrepSection('esim','esimList');
 }
 
 /* ── Global error handlers ── */
@@ -1239,7 +1410,7 @@ function exitTrip(silent){
 }
 
 function switchTripTab(i){
-  [0,1,2].forEach(function(idx){
+  [0,1,2,3].forEach(function(idx){
     var el = document.getElementById('tripPage-'+idx);
     if(el) el.classList.toggle('show', idx===i);
   });
@@ -1265,6 +1436,7 @@ function loadLocal(tripId){
   }catch(e){}
   renderLedger();
   renderShop();
+  loadPrep(tripId);
 }
 
 function saveLocal(){
@@ -1356,8 +1528,7 @@ function renderItinerary(){
     }
     return '<button class="dtab'+(di===currentDay?' active':'')+'" onclick="switchDay('+di+')" title="長按編輯此天">Day '+(di+1)+'<br><span style="font-size:10px;opacity:.7">'+esc(label)+'</span></button>';
   }).join('')
-    + '<button class="dtab" onclick="addDay()" style="flex:0 0 auto;padding:7px 10px;min-width:36px" title="新增天"><span class="ms" style="font-size:18px">add</span></button>'
-    + '<button class="dtab" onclick="openDayEditModal(currentDay)" style="flex:0 0 auto;padding:7px 10px;min-width:36px" title="編輯天"><span class="ms" style="font-size:16px">edit_calendar</span></button>';
+  ;
   // render panels
   var html = '';
   days.forEach(function(day,di){
@@ -1385,7 +1556,7 @@ function renderItinerary(){
 function switchDay(i){
   currentDay = i;
   document.querySelectorAll('.day-panel').forEach(function(p,idx){ p.classList.toggle('show',idx===i); });
-  document.querySelectorAll('#dayTabsRow .dtab').forEach(function(t,idx){ if(idx<days.length) t.classList.toggle('active',idx===i); });
+  document.querySelectorAll('#dayTabsRow .dtab').forEach(function(t,idx){ t.classList.toggle('active',idx===i); });
 }
 
 function addDay(){
