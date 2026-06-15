@@ -444,6 +444,19 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
   </div>
   <div class="splash-bar"></div>
 </div>
+<script>
+// Guarantee splash dismisses after 4s even if Firebase never loads
+setTimeout(function(){
+  var sp = document.getElementById('splash');
+  if(sp && !sp.classList.contains('fade-out')){
+    sp.classList.add('fade-out');
+    setTimeout(function(){ if(sp) sp.style.display='none'; }, 900);
+    // show auth screen if Firebase never responded
+    var auth = document.getElementById('authScreen');
+    if(auth && !auth.classList.contains('show')) auth.classList.add('show');
+  }
+}, 4000);
+</script>
 
 <!-- APP -->
 <div class="app" id="mainApp">
@@ -480,7 +493,7 @@ html,body{font-family:'Noto Sans JP',sans-serif;background:var(--bg-m);color:var
   </div>
 
   <!-- ══ MAIN (after login) ══ -->
-  <div id="mainContent" style="display:none;flex:1;flex-direction:column;min-height:0">
+  <div id="mainContent" style="display:none">
 
     <!-- page: trips list -->
     <div id="pageTrips" class="tab-page show">
