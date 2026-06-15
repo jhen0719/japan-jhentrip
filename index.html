@@ -1004,13 +1004,31 @@ function closeDayEditModal(){
   document.body.style.overflow = '';
 }
 
+
+function sortDays(){
+  // Extract numeric part from title like "Day 1", "Day 2" etc.
+  function dayOrder(day){
+    var t = (day.title || '').trim();
+    var m = t.match(/Day\s*(\d+)/i);
+    return m ? parseInt(m[1]) : 9999;
+  }
+  days.sort(function(a, b){ return dayOrder(a) - dayOrder(b); });
+  // Re-number dayNum to match new order
+  days.forEach(function(day, i){
+    day.dayNum = String(i+1).padStart(2,'0');
+  });
+}
 function saveDayEdit(){
   if(_editingDayIdx < 0) return;
   days[_editingDayIdx].sub   = document.getElementById('daySubInput').value.trim();
   days[_editingDayIdx].title = document.getElementById('dayTitleInput').value.trim() || ('Day '+(_editingDayIdx+1));
+  // Sort days by title number then re-find the edited day's new index
+  var editedDay = days[_editingDayIdx];
+  sortDays();
+  var newIdx = days.indexOf(editedDay);
   closeDayEditModal();
   renderItinerary();
-  switchDay(_editingDayIdx);
+  switchDay(newIdx >= 0 ? newIdx : 0);
   fbSaveDays();
 }
 
