@@ -1549,7 +1549,8 @@ function renderItinerary(){
     } else {
       label = day.dayNum;
     }
-    return '<button class="dtab'+(di===currentDay?' active':'')+'" onclick="switchDay('+di+')" title="長按編輯此天">Day '+(di+1)+'<br><span style="font-size:10px;opacity:.7">'+esc(label)+'</span></button>';
+    var tabTitle = day.title || ('Day '+(di+1));
+    return '<button class="dtab'+(di===currentDay?' active':'')+'" onclick="switchDay('+di+')" title="長按編輯此天">'+esc(tabTitle)+'<br><span style="font-size:10px;opacity:.7">'+esc(label)+'</span></button>';
   }).join('')
   ;
   // render panels
